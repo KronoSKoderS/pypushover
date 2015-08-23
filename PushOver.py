@@ -9,6 +9,9 @@ import urllib2
 
 
 class Sounds(object):
+    """
+    Sounds - collection of Push Notifcation sounds
+    """
     Short_Pushover = 'pushover'
     Short_Bike = 'bike'
     Short_Bugle = 'bugle'
@@ -33,6 +36,9 @@ class Sounds(object):
 
 
 class Priority(object):
+    """
+    Priority - collection of Priorities
+    """
     Lowest = -2
     Low = -1
     Normal = 0
@@ -41,6 +47,9 @@ class Priority(object):
 
 
 class PushOverManager(object):
+    """
+    Push Over Manager - Class for configuring and sending push notifications
+    """
     _url = "https://api.pushover.net/1/messages.json"
 
     def __init__(self, app_token, group_key):

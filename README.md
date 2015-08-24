@@ -13,8 +13,21 @@ Changing Sounds:
 ----------------
     # Send notification with the Long Pushover Echo notification sound
     pm.push_notification('Title', 'Message Body', sound=po.Sounds.Long_Pushover_Echo)
-
-
+    
+Select Priority:
+    # Send notification with the Lowest Priority
+    pm.push_notification('Title', 'Message Body', priority=po.Priority.Lowest)
+    
+# Supported API's:
+The following API's are currently supported:
+* Message API including optional params:
+    * device
+    * title
+    * url
+    * url_title
+    * priority
+    * timestamp
+    * sound
 
 # Future Work:
 * Emergency Priority confirmation and additional support

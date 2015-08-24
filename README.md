@@ -15,6 +15,7 @@ Changing Sounds:
     pm.push_notification('Title', 'Message Body', sound=po.Sounds.Long_Pushover_Echo)
     
 Select Priority:
+----------------
     # Send notification with the Lowest Priority
     pm.push_notification('Title', 'Message Body', priority=po.Priority.Lowest)
     

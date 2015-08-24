@@ -7,7 +7,7 @@ Basic Usage:
 -----------
     import py-pushover as po
     pm = po.PushManager('<Token>', '<Group_Key>')
-    pm.push_notification('Title', 'Message Body')
+    pm.push_notification('Message Body', title="Title")
     
 Changing Sounds:
 ----------------

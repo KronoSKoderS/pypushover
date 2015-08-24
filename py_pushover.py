@@ -1,9 +1,11 @@
-import urllib
+import json
 
-try:
+try:  # Python 3
     import urllib.request as urllib_request
-except ImportError:
+    import urllib.parse.urlencode as urllib_encode
+except ImportError:  # Python 2
     import urllib2 as urllib_request
+    import urllib.urlencode as urllib_encode
 
 
 class Sounds(object):
@@ -49,7 +51,7 @@ class Priority(object):
     Low = -1        # quiet notification
     Normal = 0      # normal
     High = 1        # high-priority (bypass user's quiet hours)
-    Emergency = 2   # require confirmation from the user
+    Emergency = 2   # require confirmation from the user (bypass users's quiet hours)
 
 
 class PushOverManager(object):
@@ -62,33 +64,41 @@ class PushOverManager(object):
 
     Methods:
     --------
-    push_notificaiton - pushes a notification to a device, user or group.
+    push_notification - pushes a notification to a device, user or group.
     """
     _push_url = "https://api.pushover.net/1/messages.json"
     _user_verify_url = "https://api.pushover.net/1/users/validate.json"
+    _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
 
-
-    def __init__(self, app_token, group_key):
-        self._app_token = app_token
-        self._group_key = group_key
-
-    def push_notification(self, message, **kwargs):
+    def __init__(self, app_token, client_key):
         """
+
+        :param str app_token: Application token generated from PushOver site
+        :param str client_key: User or Group key generated from PushOver site
+        :return:
+        """
+        self._app_token = app_token
+        self._client_key = client_key  # Can be a user or group key
+        self.latest_response = None
+
+    def push_message(self, message, **kwargs):
+        """
+        Send message to selected user/group/device.
+
         :param str message: your message
         :param str title: your message's title, otherwise your app's name is used
         :param str device: your user's device name to send the message directly to that device
         :param list device: your user's devices names to send the message directly to that device
         :param str url: a supplementary URL to show with your message
         :param str url_title: a title for your supplementary URL, otherwise just the URL is shown
-        :param int priority: message priority
+        :param int priority: message priority (Use the Priority class to select)
         :param int timestamp: a Unix timestamp of your message's date and time to display to the user
-        :param str sound: the name of
-
-        See also: https://pushover.net/api#messages
+        :param str sound: the name of the sound to override the user's default sound choice
+                          (Use the Sounds class to select)
         """
         json_out = {
             'token': self._app_token,
-            'user': self._group_key,
+            'user': self._client_key,  # can be a user or group key
             'message': message
         }
 
@@ -113,11 +123,21 @@ class PushOverManager(object):
         if 'sound' in kwargs:
             json_out['sound'] = kwargs['sound']
 
-        data = urllib.urlencode(json_out)
+        data = urllib_encode(json_out)
         req = urllib_request.Request(self._push_url, data)
+        self.latest_response = urllib_request.urlopen(req)
 
-        if self._response_check(urllib_request.urlopen(req)) < 1:
-            raise UserWarning("Notification did not succeed")
+
+    def check_user(self, user_id):
+        """
+
+        :param user_id:
+        :return:
+        """
+        return self.check_group(user_id)
+
+    def check_group(self, group_id):
+        return False
 
     @staticmethod
     def _response_check(response):
@@ -126,6 +146,7 @@ class PushOverManager(object):
         :return:
 
         TODO: Make more robust
+        BUG: remove `print` statements and replace with Error Checking
         """
         if response.code == 200:
             return 1

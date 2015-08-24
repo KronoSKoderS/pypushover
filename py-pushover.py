@@ -50,13 +50,21 @@ class PushOverManager(object):
     """
     Push Over Manager - Class for configuring and sending push notifications
     """
-    _url = "https://api.pushover.net/1/messages.json"
+    _push_url = "https://api.pushover.net/1/messages.json"
+    _user_verify_url = "https://api.pushover.net/1/users/validate.json"
+    
 
     def __init__(self, app_token, group_key):
         self._app_token = app_token
         self._group_key = group_key
 
     def push_notification(self, title, message, **kwargs):
+        """
+        :param title:
+        :param message:
+        :param kwargs:
+        :return:
+        """
         json_out = {
             'token': self._app_token,
             'user': self._group_key,
@@ -79,12 +87,16 @@ class PushOverManager(object):
             json_out['sound'] = kwargs['sound']
 
         data = urllib.urlencode(json_out)
-        req = urllib2.Request(self._url, data)
+        req = urllib2.Request(self._push_url, data)
         if self._response_check(urllib2.urlopen(req)) < 1:
             raise UserWarning("Notification did not succeed")
 
     @staticmethod
     def _response_check(response):
+        """
+        :param response:
+        :return:
+        """
         if response.code == 200:
             return 1
 

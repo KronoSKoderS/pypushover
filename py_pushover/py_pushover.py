@@ -2,7 +2,8 @@ import json
 
 try:  # Python 3
     import urllib.request as urllib_request
-    import urllib.parse.urlencode as urllib_encode
+    from urllib.parse import urlencode as urllib_encode
+
 except ImportError:  # Python 2
     import urllib2 as urllib_request
     import urllib.urlencode as urllib_encode
@@ -127,7 +128,6 @@ class PushOverManager(object):
         req = urllib_request.Request(self._push_url, data)
         self.latest_response = urllib_request.urlopen(req)
 
-
     def check_user(self, user_id):
         """
 
@@ -137,6 +137,11 @@ class PushOverManager(object):
         return self.check_group(user_id)
 
     def check_group(self, group_id):
+        """
+        TODO: Implement
+        :param group_id:
+        :return:
+        """
         return False
 
     @staticmethod

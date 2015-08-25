@@ -5,19 +5,19 @@ Python bindings to the Push Over API.  Supports both python 2 and 3.
     
 Basic Usage:
 -----------
-    import py-pushover as po
-    pm = po.PushManager('<Token>', '<Group_Key>')
+    import py_pushover as py_po
+    pm = py_po.PushManager('<Token>', '<Group_Key>')
     pm.push_notification('Message Body', title="Title")
     
 Changing Sounds:
 ----------------
     # Send notification with the Long Pushover Echo notification sound
-    pm.push_notification('Title', 'Message Body', sound=po.Sounds.Long_Pushover_Echo)
+    pm.push_notification('Title', 'Message Body', sound=py_po.Sounds.Long_Pushover_Echo)
     
 Select Priority:
 ----------------
     # Send notification with the Lowest Priority
-    pm.push_notification('Title', 'Message Body', priority=po.Priority.Lowest)
+    pm.push_notification('Title', 'Message Body', priority=py_po.Priority.Lowest)
     
 # Supported API's:
 The following API's are currently supported:

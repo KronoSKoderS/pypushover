@@ -81,6 +81,7 @@ class PushOverManager(object):
         self._app_token = app_token
         self._client_key = client_key  # Can be a user or group key
         self.latest_response = None
+        self._latest_json_response = None
 
     def push_message(self, message, **kwargs):
         """
@@ -126,12 +127,15 @@ class PushOverManager(object):
 
         data = urllib_encode(json_out)
         req = urllib_request.Request(self._push_url, data)
+
         try:
             self.latest_response = urllib_request.urlopen(req)
-        except urllib_request.HTTPError as e:
-            raise e
+        except urllib_request.HTTPError as req:
+            self.latest_response = req
 
-        temp = json.dumps(self.latest_response)
+        self._latest_json_response = json.loads(self.latest_response.read())
+
+        self._response_check(self.latest_response)
 
     def check_user(self, user_id):
         """
@@ -149,8 +153,7 @@ class PushOverManager(object):
         """
         return False
 
-    @staticmethod
-    def _response_check(response):
+    def _response_check(self, response):
         """
         :param Request response: response from server
         :return:
@@ -159,14 +162,12 @@ class PushOverManager(object):
         BUG: remove `print` statements and replace with Error Checking
         """
         if response.code == 200:
-            return 1
+            return
 
         elif 400 <= response.code < 500:
-            print("Invalid input!  Potential issues are max quota reached, token invalid, user no longer active, etc,.")
-            if 'errors' in response.headers.dict:
-                print(response.headers.dict['errors'])
-            return -1
+            error = self._latest_json_response['errors']
+            self.latest_response.msg = error
+            raise self.latest_response
 
         else:
-            print("Unable to connect to API or not reply.  Please try again in 5 seconds")
-            return 0
+            raise self.latest_response

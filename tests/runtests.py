@@ -23,6 +23,12 @@ class TestPushManager(unittest.TestCase):
     def test_val_app_token(self):
         self.valid_pm.push_message('This should always work')
 
+    def test_val_user(self):
+        self.assertTrue(self.valid_pm.validate_user(user_key))
+
+    def test_inv_user(self):
+        inv_user_key = "justabunchofjunk"
+        self.assertFalse(self.valid_pm.validate_user(inv_user_key))
 
 if __name__ == "__main__":
     unittest.main()

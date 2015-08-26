@@ -156,10 +156,6 @@ class PushOverManager(object):
     def _response_check(self, response):
         """
         :param Request response: response from server
-        :return:
-
-        TODO: Make more robust
-        BUG: remove `print` statements and replace with Error Checking
         """
         if response.code == 200:
             return

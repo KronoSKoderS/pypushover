@@ -3,10 +3,12 @@ import json
 try:  # Python 3
     import urllib.request as urllib_request
     from urllib.parse import urlencode as urllib_encode
+    PYTHON_VER = 3
 
 except ImportError:  # Python 2
     import urllib2 as urllib_request
     from urllib import urlencode as urllib_encode
+    PYTHON_VER = 2
 
 
 class Sounds(object):
@@ -98,7 +100,7 @@ class PushOverManager(object):
         :param str sound: the name of the sound to override the user's default sound choice
                           (Use the Sounds class to select)
         """
-        json_out = {
+        data_out = {
             'token': self._app_token,
             'user': self._client_key,  # can be a user or group key
             'message': message
@@ -106,36 +108,26 @@ class PushOverManager(object):
 
         # Support for non-required parameters of PushOver
         if 'title' in kwargs:
-            json_out['title'] = kwargs['title']
+            data_out['title'] = kwargs['title']
         if 'device' in kwargs:
             temp = kwargs['device']
             if type(temp) == list:
-                json_out['device'] = ','.join(temp)
+                data_out['device'] = ','.join(temp)
             else:
-                json_out['device'] = temp
-            json_out['device'] = kwargs['device']
+                data_out['device'] = temp
+            data_out['device'] = kwargs['device']
         if 'url' in kwargs:
-            json_out['url'] = kwargs['url']
+            data_out['url'] = kwargs['url']
         if 'url_title' in kwargs:
-            json_out['url_title'] = kwargs['url_title']
+            data_out['url_title'] = kwargs['url_title']
         if 'priority' in kwargs:
-            json_out['priority'] = kwargs['priority']
+            data_out['priority'] = kwargs['priority']
         if 'timestamp' in kwargs:
-            json_out['timestamp'] = kwargs['timestamp']
+            data_out['timestamp'] = kwargs['timestamp']
         if 'sound' in kwargs:
-            json_out['sound'] = kwargs['sound']
+            data_out['sound'] = kwargs['sound']
 
-        data = urllib_encode(json_out)
-        req = urllib_request.Request(self._push_url, data)
-
-        try:
-            self.latest_response = urllib_request.urlopen(req)
-        except urllib_request.HTTPError as req:
-            self.latest_response = req
-
-        self._latest_json_response = json.loads(self.latest_response.read())
-
-        self._response_check(self.latest_response)
+        self._send(self._push_url, data_out)
 
     def check_user(self, user_id):
         """
@@ -152,6 +144,25 @@ class PushOverManager(object):
         :return:
         """
         return False
+
+    def _send(self, url, data_out=None):
+
+        param_data = urllib_encode(data_out)
+        if PYTHON_VER == 3:
+            param_data = param_data.encode("utf-8")
+        req = urllib_request.Request(url, param_data)
+
+        try:
+            self.latest_response = urllib_request.urlopen(req)
+        except urllib_request.HTTPError as req:
+            self.latest_response = req
+
+        if PYTHON_VER == 3:
+            self._latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
+        else:
+            self._latest_json_response = json.loads(self.latest_response.read())
+
+        self._response_check(self.latest_response)
 
     def _response_check(self, response):
         """

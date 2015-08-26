@@ -20,6 +20,9 @@ class TestPushManager(unittest.TestCase):
         with self.assertRaises(urllib_request.HTTPError):
             inv_pm.push_message('This should never work')
 
+    def test_val_app_token(self):
+        self.valid_pm.push_message('This should always work')
+
 
 if __name__ == "__main__":
     unittest.main()

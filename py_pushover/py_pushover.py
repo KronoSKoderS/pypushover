@@ -6,7 +6,7 @@ try:  # Python 3
 
 except ImportError:  # Python 2
     import urllib2 as urllib_request
-    import urllib.urlencode as urllib_encode
+    from urllib import urlencode as urllib_encode
 
 
 class Sounds(object):
@@ -126,7 +126,12 @@ class PushOverManager(object):
 
         data = urllib_encode(json_out)
         req = urllib_request.Request(self._push_url, data)
-        self.latest_response = urllib_request.urlopen(req)
+        try:
+            self.latest_response = urllib_request.urlopen(req)
+        except urllib_request.HTTPError as e:
+            raise e
+
+        temp = json.dumps(self.latest_response)
 
     def check_user(self, user_id):
         """

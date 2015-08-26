@@ -70,7 +70,7 @@ class PushOverManager(object):
     push_notification - pushes a notification to a device, user or group.
     """
     _push_url = "https://api.pushover.net/1/messages.json"
-    _user_verify_url = "https://api.pushover.net/1/users/validate.json"
+    _validate_url = "https://api.pushover.net/1/users/validate.json"
     _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
 
     def __init__(self, app_token, client_key):
@@ -129,24 +129,39 @@ class PushOverManager(object):
 
         self._send(self._push_url, data_out)
 
-    def check_user(self, user_id):
+    def validate_user(self, user_id, device=None):
         """
-
         :param user_id:
         :return:
         """
-        return self.check_group(user_id)
+        return self.validate_group(user_id, device)
 
-    def check_group(self, group_id):
+    def validate_group(self, group_id, device=None):
         """
-        TODO: Implement
         :param group_id:
         :return:
         """
-        return False
+        param_data = {
+            'token': self._app_token,
+            'user': group_id
+        }
 
-    def _send(self, url, data_out=None):
+        if device:
+            param_data['device'] = device
 
+        self._send(self._validate_url, param_data, check_response=False)
+
+        if self._latest_json_response['status'] == 1:
+            return True
+        else:
+            return False
+
+    def _send(self, url, data_out=None, check_response=True):
+        """
+
+        :param string url:
+        :param dict data_out:
+        """
         param_data = urllib_encode(data_out)
         if PYTHON_VER == 3:
             param_data = param_data.encode("utf-8")
@@ -162,7 +177,8 @@ class PushOverManager(object):
         else:
             self._latest_json_response = json.loads(self.latest_response.read())
 
-        self._response_check(self.latest_response)
+        if check_response:
+            self._response_check(self.latest_response)
 
     def _response_check(self, response):
         """

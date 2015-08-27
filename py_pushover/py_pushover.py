@@ -181,9 +181,19 @@ class PushOverManager(object):
         :param string receipt: the notification receipt to check
         :return dict:
         """
-        receipt_to_check = self._latest_json_response['receipt']
+        receipt_to_check = None
+
+        # check to see if previous response had a `receipt`
+        if 'receipt' in self._latest_json_response:
+            receipt_to_check = self._latest_json_response['receipt']
+
+        # function `receipt` argument takes precedence
         if receipt:
             receipt_to_check = receipt
+
+        # no receipt supplied from either last call or function argument.  Raise error
+        if receipt_to_check is None:
+            raise TypeError('Missing required `receipt` argument')
 
         url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
         self._send(url_to_send)

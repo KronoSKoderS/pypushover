@@ -18,6 +18,17 @@ Select Priority:
 ----------------
     # Send notification with the Lowest Priority
     pm.push_notification('Title', 'Message Body', priority=py_po.Priority.Lowest)
+    pm.push_notification('Title', 'Message Body', priority=py_po.Emergency, retry=30, expire=3600)
+
+Check Receipt:
+--------------
+    # Can check that last responses receipt (Note push notificiaton with a priority of Emergency is required first)
+    pm.check_receipt()
+    # Can check a custom receipt
+    pm.check_receipt('<receipt token>')
+
+
+
     
 # Supported API's:
 The following API's are currently supported:
@@ -34,7 +45,7 @@ The following API's are currently supported:
 * Emergency Priority confirmation and additional support
 * Asynchronous method for `push_notification`
 * User/Group Verification API
-* Receipt and Callback API
+* <strike>Receipt API</strike>
 * Subscriptions API
 * Group Management API
 * Licensing API

@@ -75,6 +75,7 @@ class PushOverManager(object):
     _push_url = "https://api.pushover.net/1/messages.json"
     _validate_url = "https://api.pushover.net/1/users/validate.json"
     _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
+    _cancel_receipt_url = "https://api.pushover.net/1/receipts/{receipt}/cancel.json"
 
     def __init__(self, app_token, client_key=None):
         """
@@ -108,11 +109,12 @@ class PushOverManager(object):
                           (Use the Sounds class to select)
         """
 
-        #
+        # determine if client key has already been saved.  If not then get argument
         client_key = self._client_key
         if 'client' in kwargs:
             client_key = kwargs['client']
 
+        # client key required to push message
         if client_key is None:
             raise ValueError('`client` argument must be set to the group or user id')
 
@@ -144,7 +146,7 @@ class PushOverManager(object):
                 if 'retry' not in kwargs:
                     raise TypeError('Missing `retry` argument required for message priority of Emergency')
                 else:
-                    retry_val = data_out['retry']
+                    retry_val = kwargs['retry']
 
                     # 'retry' val must be a minimum of MIN_RETRY and max of MAX_EXPIRE
                     if MAX_EXPIRE < retry_val < MIN_RETRY:
@@ -198,6 +200,28 @@ class PushOverManager(object):
         url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
         self._send(url_to_send)
         return self._latest_json_response
+
+    def cancel_retries(self, receipt=None):
+        """
+        Cancel an emergency-priority notification early.
+        :param string receipt:
+        """
+        receipt_to_check = None
+
+        # check to see if previous response had a `receipt`
+        if 'receipt' in self._latest_json_response:
+            receipt_to_check = self._latest_json_response['receipt']
+
+        # function `receipt` argument takes precedence
+        if receipt:
+            receipt_to_check = receipt
+
+        # no receipt supplied from either last call or function argument.  Raise error
+        if receipt_to_check is None:
+            raise TypeError('Missing required `receipt` argument')
+
+        url_to_send = self._cancel_receipt_url.format(receipt=receipt_to_check)
+        self._send(url_to_send)
 
     def validate_user(self, user_id, device=None):
         """

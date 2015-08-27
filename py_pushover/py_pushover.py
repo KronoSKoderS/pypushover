@@ -10,6 +10,9 @@ except ImportError:  # Python 2
     from urllib import urlencode as urllib_encode
     PYTHON_VER = 2
 
+MAX_EXPIRE = 86400
+MIN_RETRY = 30
+
 
 class Sounds(object):
     """
@@ -73,12 +76,11 @@ class PushOverManager(object):
     _validate_url = "https://api.pushover.net/1/users/validate.json"
     _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
 
-    def __init__(self, app_token, client_key):
+    def __init__(self, app_token, client_key=None):
         """
 
         :param str app_token: Application token generated from PushOver site
         :param str client_key: User or Group key generated from PushOver site
-        :return:
         """
         self._app_token = app_token
         self._client_key = client_key  # Can be a user or group key
@@ -90,19 +92,33 @@ class PushOverManager(object):
         Send message to selected user/group/device.
 
         :param str message: your message
+        :param str client: user or group id to send the message to
         :param str title: your message's title, otherwise your app's name is used
         :param str device: your user's device name to send the message directly to that device
         :param list device: your user's devices names to send the message directly to that device
         :param str url: a supplementary URL to show with your message
         :param str url_title: a title for your supplementary URL, otherwise just the URL is shown
         :param int priority: message priority (Use the Priority class to select)
+        :param int retry: how often (in seconds) the Pushover servers will retry the notification to the user (required
+                          only with priority level of Emergency)
+        :param int expire: how many seconds your notification will continue to be retried (required only with priority
+                           level of Emergency)
         :param int timestamp: a Unix timestamp of your message's date and time to display to the user
         :param str sound: the name of the sound to override the user's default sound choice
                           (Use the Sounds class to select)
         """
+
+        #
+        client_key = self._client_key
+        if 'client' in kwargs:
+            client_key = kwargs['client']
+
+        if client_key is None:
+            raise ValueError('`client` argument must be set to the group or user id')
+
         data_out = {
             'token': self._app_token,
-            'user': self._client_key,  # can be a user or group key
+            'user': client_key,  # can be a user or group key
             'message': message
         }
 
@@ -122,6 +138,34 @@ class PushOverManager(object):
             data_out['url_title'] = kwargs['url_title']
         if 'priority' in kwargs:
             data_out['priority'] = kwargs['priority']
+
+            # Emergency prioritized messages require 'retry' and 'expire' to be defined
+            if data_out['priority'] == Priority.Emergency:
+                if 'retry' not in kwargs:
+                    raise TypeError('Missing `retry` argument required for message priority of Emergency')
+                else:
+                    retry_val = data_out['retry']
+
+                    # 'retry' val must be a minimum of MIN_RETRY and max of MAX_EXPIRE
+                    if MAX_EXPIRE < retry_val < MIN_RETRY:
+                        raise ValueError('`retry` argument must be at a minimum of {} and a maximum of {}'.format(
+                            MIN_RETRY, MAX_EXPIRE
+                        ))
+
+                    data_out['retry'] = retry_val
+                if 'expire' not in kwargs:
+                    raise TypeError('Missing `expire` arguemnt required for message priority of Emergency')
+                else:
+                    expire_val = kwargs['expire']
+
+                    # 'expire' val must be a minimum of MIN_RETRY and max of MAX_EXPIRE
+                    if MAX_EXPIRE < expire_val < MIN_RETRY:
+                        raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
+                            MIN_RETRY, MAX_EXPIRE
+                        ))
+
+                    data_out['expire'] = expire_val
+
         if 'timestamp' in kwargs:
             data_out['timestamp'] = kwargs['timestamp']
         if 'sound' in kwargs:
@@ -129,17 +173,37 @@ class PushOverManager(object):
 
         self._send(self._push_url, data_out)
 
+    def check_receipt(self, receipt=None):
+        """
+        Gets the receipt status of the selected notificiation.  Returns a dictionary of the results
+
+        see also https://pushover.net/api#receipt
+        :param string receipt: the notification receipt to check
+        :return dict:
+        """
+        receipt_to_check = self._latest_json_response['receipt']
+        if receipt:
+            receipt_to_check = receipt
+
+        url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
+        self._send(url_to_send)
+        return self._latest_json_response
+
     def validate_user(self, user_id, device=None):
         """
+        Validates whether a userID is a valid id and returns a Boolean as a result
+
         :param user_id:
-        :return:
+        :return bool:
         """
         return self.validate_group(user_id, device)
 
     def validate_group(self, group_id, device=None):
         """
+        Validates whether a groupID is a valid ID and returns a Boolean as a result
+
         :param group_id:
-        :return:
+        :return bool:
         """
         param_data = {
             'token': self._app_token,
@@ -158,9 +222,13 @@ class PushOverManager(object):
 
     def _send(self, url, data_out=None, check_response=True):
         """
+        Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as
+        well.  A check_response value of False the HTTP response code is checked.  A customized HTTPError is raised if
+        an error is detected.
 
-        :param string url:
-        :param dict data_out:
+        :param string url: url of the site to send the request to (http://www.site.com)
+        :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
+        :param bool check_response: check http response and raise exception if an error is detected
         """
         param_data = urllib_encode(data_out)
         if PYTHON_VER == 3:
@@ -182,6 +250,8 @@ class PushOverManager(object):
 
     def _response_check(self, response):
         """
+        Checks the HTTP Response code and raises a customized HTTPError based on the Pushover 'errors' response.
+
         :param Request response: response from server
         """
         if response.code == 200:

@@ -27,20 +27,6 @@ Check Receipt:
     # Can check a custom receipt
     pm.check_receipt('<receipt token>')
 
-
-
-    
-# Supported API's:
-The following API's are currently supported:
-* Message API including optional params:
-    * device
-    * title
-    * url
-    * url_title
-    * priority
-    * timestamp
-    * sound
-
 # Future Work:
 * <strike>Emergency Priority confirmation and additional support</strike>
 * Asynchronous method for `push_notification`

@@ -42,9 +42,9 @@ The following API's are currently supported:
     * sound
 
 # Future Work:
-* Emergency Priority confirmation and additional support
+* <strike>Emergency Priority confirmation and additional support</strike>
 * Asynchronous method for `push_notification`
-* User/Group Verification API
+* <strike>User/Group Verification API</strike>
 * <strike>Receipt API</strike>
 * Subscriptions API
 * Group Management API

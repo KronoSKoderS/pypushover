@@ -54,8 +54,5 @@ class TestPushManager(unittest.TestCase):
         self.valid_pm.cancel_retries()
 
 
-
-
-
 if __name__ == "__main__":
     unittest.main()

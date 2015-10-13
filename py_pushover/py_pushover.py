@@ -10,8 +10,8 @@ except ImportError:  # Python 2
     from urllib import urlencode as urllib_encode
     PYTHON_VER = 2
 
-MAX_EXPIRE = 86400
-MIN_RETRY = 30
+_MAX_EXPIRE = 86400
+_MIN_RETRY = 30
 
 
 class Sounds(object):
@@ -66,11 +66,15 @@ class PushOverManager(object):
 
     Properties:
     -----------
-
+    latest_response
 
     Methods:
     --------
     push_notification - pushes a notification to a device, user or group.
+    check_receipt
+    cancel_retries
+    validate_user
+    validate_group
     """
     _push_url = "https://api.pushover.net/1/messages.json"
     _validate_url = "https://api.pushover.net/1/users/validate.json"
@@ -148,10 +152,10 @@ class PushOverManager(object):
                 else:
                     retry_val = kwargs['retry']
 
-                    # 'retry' val must be a minimum of MIN_RETRY and max of MAX_EXPIRE
-                    if MAX_EXPIRE < retry_val < MIN_RETRY:
+                    # 'retry' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
+                    if _MAX_EXPIRE < retry_val < _MIN_RETRY:
                         raise ValueError('`retry` argument must be at a minimum of {} and a maximum of {}'.format(
-                            MIN_RETRY, MAX_EXPIRE
+                            _MIN_RETRY, _MAX_EXPIRE
                         ))
 
                     data_out['retry'] = retry_val
@@ -160,10 +164,10 @@ class PushOverManager(object):
                 else:
                     expire_val = kwargs['expire']
 
-                    # 'expire' val must be a minimum of MIN_RETRY and max of MAX_EXPIRE
-                    if MAX_EXPIRE < expire_val < MIN_RETRY:
+                    # 'expire' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
+                    if _MAX_EXPIRE < expire_val < _MIN_RETRY:
                         raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
-                            MIN_RETRY, MAX_EXPIRE
+                            _MIN_RETRY, _MAX_EXPIRE
                         ))
 
                     data_out['expire'] = expire_val
@@ -221,7 +225,7 @@ class PushOverManager(object):
             raise TypeError('Missing required `receipt` argument')
 
         url_to_send = self._cancel_receipt_url.format(receipt=receipt_to_check)
-        self._send(url_to_send)
+        self._send(url_to_send, data_out={'token': self._app_token})
 
     def validate_user(self, user_id, device=None):
         """
@@ -264,9 +268,12 @@ class PushOverManager(object):
         :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
         :param bool check_response: check http response and raise exception if an error is detected
         """
-        param_data = urllib_encode(data_out)
-        if PYTHON_VER == 3:
-            param_data = param_data.encode("utf-8")
+        if data_out:
+            param_data = urllib_encode(data_out)
+            if PYTHON_VER == 3:
+                param_data = param_data.encode("utf-8")
+        else:
+            param_data = ''
         req = urllib_request.Request(url, param_data)
 
         try:

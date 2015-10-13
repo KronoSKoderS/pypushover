@@ -258,6 +258,24 @@ class PushOverManager(object):
         else:
             return False
 
+    def group_info(self):
+        raise NotImplementedError
+
+    def group_add_user(self):
+        raise NotImplementedError
+
+    def group_remove_user(self):
+        raise NotImplementedError
+
+    def group_disable_user(self):
+        raise NotImplementedError
+
+    def group_enable_user(self):
+        raise NotImplementedError
+
+    def group_rename(self):
+        raise NotImplementedError
+
     def _send(self, url, data_out=None, check_response=True):
         """
         Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as

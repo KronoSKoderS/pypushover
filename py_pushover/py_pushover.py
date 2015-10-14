@@ -75,11 +75,24 @@ class PushOverManager(object):
     cancel_retries
     validate_user
     validate_group
+    group_info
+    group_add_user
+    group_remove_user
+    group_disable_user
+    group_enable_user
+    group_rename
     """
     _push_url = "https://api.pushover.net/1/messages.json"
     _validate_url = "https://api.pushover.net/1/users/validate.json"
     _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
     _cancel_receipt_url = "https://api.pushover.net/1/receipts/{receipt}/cancel.json"
+    _group_url = "https://api.pushover.net/1/groups/{group_key}"
+    _group_info_url = _group_url + ".json"
+    _group_add_user_url = _group_url + "/add_user.json"
+    _group_del_user_url = _group_url + "/delete_user.json"
+    _group_dis_user_url = _group_url + "/disable_user.json"
+    _group_ena_user_url = _group_url + "/enable_user.json"
+    _group_ren_url = _group_url + "/rename.json"
 
     def __init__(self, app_token, client_key=None):
         """
@@ -259,21 +272,53 @@ class PushOverManager(object):
             return False
 
     def group_info(self):
+        """
+
+        required params: token
+        :return:
+        """
+
         raise NotImplementedError
 
     def group_add_user(self):
+        """
+
+        required params: token, user
+        optional params: device, memo
+        :return:
+        """
         raise NotImplementedError
 
     def group_remove_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
         raise NotImplementedError
 
     def group_disable_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
         raise NotImplementedError
 
     def group_enable_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
         raise NotImplementedError
 
     def group_rename(self):
+        """
+
+        required params: token, name
+        :return:
+        """
         raise NotImplementedError
 
     def _send(self, url, data_out=None, check_response=True):

@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='py_pushover',
-    version='0.0.1',
+    version='0.0.1a1',
     description='Object Oriented API calls to the Pushover Service',
     long_description=long_description,
     url='https://github.com/KronosKoderS/py_pushover',

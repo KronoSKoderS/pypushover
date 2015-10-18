@@ -94,7 +94,7 @@ class PushOverManager(object):
     _group_ena_user_url = _group_url + "/enable_user.json"
     _group_ren_url = _group_url + "/rename.json"
 
-    def __init__(self, app_token, client_key=None):
+    def __init__(self, app_token, client_key=None, group_key=None):
         """
 
         :param str app_token: Application token generated from PushOver site
@@ -102,8 +102,10 @@ class PushOverManager(object):
         """
         self._app_token = app_token
         self._client_key = client_key  # Can be a user or group key
+        self._group_key = group_key
         self.latest_response = None
         self._latest_json_response = None
+
 
     def push_message(self, message, **kwargs):
         """
@@ -271,14 +273,22 @@ class PushOverManager(object):
         else:
             return False
 
-    def group_info(self):
+    def group_info(self, group_key=None):
         """
 
         required params: token
         :return:
         """
+        group = None
 
-        raise NotImplementedError
+        if group_key:
+            group = group_key
+        elif self._group_key:
+            group = self._group_key
+        else:
+            raise ValueError("A group key must be supplied")
+
+        self._send(self._group_info_url.format(group))
 
     def group_add_user(self):
         """

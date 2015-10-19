@@ -288,7 +288,7 @@ class PushOverManager(object):
         else:
             raise ValueError("A group key must be supplied")
 
-        self._send(self._group_info_url.format(group))
+        self._send(self._group_info_url.format(group_key=group))
 
     def group_add_user(self):
         """
@@ -341,23 +341,32 @@ class PushOverManager(object):
         :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
         :param bool check_response: check http response and raise exception if an error is detected
         """
-        if data_out:
-            param_data = urllib_encode(data_out)
-            if PYTHON_VER == 3:
-                param_data = param_data.encode("utf-8")
-        else:
-            param_data = ''
+        if not data_out:
+            param_data = {
+                'token': self._app_token
+            }
+
+        param_data = urllib_encode(data_out)
+        if PYTHON_VER == 3:
+            param_data = param_data.encode("utf-8")
+
         req = urllib_request.Request(url, param_data)
 
         try:
             self.latest_response = urllib_request.urlopen(req)
+            if PYTHON_VER == 3:
+                self._latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
+            else:
+                self._latest_json_response = json.loads(self.latest_response.read())
+
+            if check_response:
+                self._response_check(self.latest_response)
         except urllib_request.HTTPError as req:
             self.latest_response = req
+            if check_response:
+                raise req
 
-        if PYTHON_VER == 3:
-            self._latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
-        else:
-            self._latest_json_response = json.loads(self.latest_response.read())
+
 
         if check_response:
             self._response_check(self.latest_response)

@@ -53,6 +53,10 @@ class TestPushManager(unittest.TestCase):
         time.sleep(5)
         self.valid_pm.cancel_retries()
 
+    def test_group_info(self):
+        info = self.valid_pm.group_info(group_key)
+        self.assertEqual(info['name'], 'KronosKodersTest')
+
 
 if __name__ == "__main__":
     unittest.main()

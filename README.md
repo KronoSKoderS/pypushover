@@ -1,5 +1,17 @@
-# py-pushover
-Python bindings to the Push Over API.  Supports both python 2 and 3.  
+# py_pushover
+Python bindings to the [Push Over API](https://pushover.net/api).  Supports both python 2 and 3.
+
+# Instatllation
+## PyPi
+
+execute `pip install py-pushover`
+
+## Manual Installation
+
+1. Download the source code from Github
+2. navigate to the downloaded folder
+3. execute `python setup.py install`
+
 
 # Usage
     
@@ -26,13 +38,3 @@ Check Receipt:
     pm.check_receipt()
     # Can check a custom receipt
     pm.check_receipt('<receipt token>')
-
-# Future Work:
-* <strike>Emergency Priority confirmation and additional support</strike>
-* Asynchronous method for `push_notification`
-* <strike>User/Group Verification API</strike>
-* <strike>Receipt API</strike>
-* Subscriptions API
-* Group Management API
-* Licensing API
-* BETA Open Client API

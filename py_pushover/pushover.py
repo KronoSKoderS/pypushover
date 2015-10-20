@@ -1,4 +1,5 @@
 import json
+from py_pushover.Constants import Priorities
 
 try:  # Python 3
     import urllib.request as urllib_request
@@ -12,52 +13,6 @@ except ImportError:  # Python 2
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
-
-
-class Sounds(object):
-    """
-    Sounds - Collection of Push Notification sounds.
-
-    This is to be used with the 'sounds' argument of the PushOverManager.push_notification method.
-
-    see also: https://pushover.net/api#sounds
-    """
-    Short_Pushover = 'pushover'
-    Short_Bike = 'bike'
-    Short_Bugle = 'bugle'
-    Short_Cash_Register = 'cashregister'
-    Short_Classical = 'classical'
-    Short_Cosmic = 'cosmic'
-    Short_Gamelan = 'gamelan'
-    Short_Incoming = 'incoming'
-    Short_Intermission = 'intermission'
-    Short_Magic = 'magic'
-    Short_Mechanical = 'mechanical'
-    Short_Piano_Bar = 'pianobar'
-    Short_Siren = 'siren'
-    Short_Space_Alarm = 'spacealarm'
-    Short_Tug_Boat = 'tugboat'
-    Long_Alien_Alarm = 'alien'
-    Long_Climb = 'climb'
-    Long_Persistent = 'persistent'
-    Long_Pushover_Echo = 'echo'
-    Long_Up_Down = 'updown'
-    Silent = 'none'
-
-
-class Priority(object):
-    """
-    Priority - Collection of Priorities.
-
-    This is to be used with the 'priority' arguemnt of the PushOverManager.push_notification method.
-
-    see also: https://pushover.net/api#priority
-    """
-    Lowest = -2     # no notification/alert
-    Low = -1        # quiet notification
-    Normal = 0      # normal
-    High = 1        # high-priority (bypass user's quiet hours)
-    Emergency = 2   # require confirmation from the user (bypass users's quiet hours)
 
 
 class PushOverManager(object):
@@ -146,7 +101,7 @@ class PushOverManager(object):
             data_out['priority'] = kwargs['priority']
 
             # Emergency prioritized messages require 'retry' and 'expire' to be defined
-            if data_out['priority'] == Priority.Emergency:
+            if data_out['priority'] == Priorities.Emergency:
                 if 'retry' not in kwargs:
                     raise TypeError('Missing `retry` argument required for message priority of Emergency')
                 else:

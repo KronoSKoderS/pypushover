@@ -1,7 +1,7 @@
 import unittest
 import time
-from py_pushover import py_pushover as py_po
-from helpers import user_key, group_key, app_key
+import py_pushover as py_po
+from tests.helpers import user_key, group_key, app_key
 
 try:  # Python 3
     import urllib.request as urllib_request
@@ -40,16 +40,16 @@ class TestPushManager(unittest.TestCase):
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency!', priority=py_po.Priority.Emergency)
+            self.valid_pm.push_message('Emergency!', priority=py_po.Priorities.Emergency)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.Priority.Emergency, retry=30)
+            self.valid_pm.push_message('Emergency', priority=py_po.Priorities.Emergency, retry=30)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.Priority.Emergency, expire=3600)
+            self.valid_pm.push_message('Emergency', priority=py_po.Priorities.Emergency, expire=3600)
 
     def test_val_emergency_msg(self):
-        self.valid_pm.push_message("Emergency", priority=py_po.Priority.Emergency, retry=30, expire=3600)
+        self.valid_pm.push_message("Emergency", priority=py_po.Priorities.Emergency, retry=30, expire=3600)
         time.sleep(5)
         self.valid_pm.cancel_retries()
 

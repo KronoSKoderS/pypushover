@@ -59,7 +59,7 @@ class PushOverManager(object):
         self._client_key = client_key  # Can be a user or group key
         self._group_key = group_key
         self.latest_response = None
-        self._latest_json_response = None
+        self.latest_json_response = None
 
 
     def push_message(self, message, **kwargs):
@@ -160,8 +160,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self._latest_json_response:
-            receipt_to_check = self._latest_json_response['receipt']
+        if 'receipt' in self.latest_json_response:
+            receipt_to_check = self.latest_json_response['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -173,7 +173,7 @@ class PushOverManager(object):
 
         url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
         self._send(url_to_send)
-        return self._latest_json_response
+        return self.latest_json_response
 
     def cancel_retries(self, receipt=None):
         """
@@ -183,8 +183,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self._latest_json_response:
-            receipt_to_check = self._latest_json_response['receipt']
+        if 'receipt' in self.latest_json_response:
+            receipt_to_check = self.latest_json_response['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -223,7 +223,7 @@ class PushOverManager(object):
 
         self._send(self._validate_url, param_data, check_response=False)
 
-        if self._latest_json_response['status'] == 1:
+        if self.latest_json_response['status'] == 1:
             return True
         else:
             return False
@@ -297,11 +297,14 @@ class PushOverManager(object):
         :param bool check_response: check http response and raise exception if an error is detected
         """
         if not data_out:
-            param_data = {
+            data_out = {
                 'token': self._app_token
             }
+        else:
+            data_out['token'] = self._app_token
 
         param_data = urllib_encode(data_out)
+
         if PYTHON_VER == 3:
             param_data = param_data.encode("utf-8")
 
@@ -309,19 +312,14 @@ class PushOverManager(object):
 
         try:
             self.latest_response = urllib_request.urlopen(req)
-            if PYTHON_VER == 3:
-                self._latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
-            else:
-                self._latest_json_response = json.loads(self.latest_response.read())
 
-            if check_response:
-                self._response_check(self.latest_response)
         except urllib_request.HTTPError as req:
             self.latest_response = req
-            if check_response:
-                raise req
 
-
+        if PYTHON_VER == 3:
+            self.latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
+        else:
+            self.latest_json_response = json.loads(self.latest_response.read())
 
         if check_response:
             self._response_check(self.latest_response)
@@ -336,9 +334,9 @@ class PushOverManager(object):
             return
 
         elif 400 <= response.code < 500:
-            error = self._latest_json_response['errors']
+            error = self.latest_json_response['errors']
             self.latest_response.msg = error
-            raise self.latest_response
+            raise response
 
         else:
-            raise self.latest_response
+            raise response

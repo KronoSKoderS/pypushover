@@ -1,5 +1,5 @@
 # py_pushover
-Object Oriented Python bindings to the [Push Over API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  
+Object Oriented Python bindings to the [Push Over API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  See the [Wiki](https://github.com/KronosKoderS/py_pushover/wiki) for more detailed information regarding usage.  
 
 # Instatllation
 ## PyPi

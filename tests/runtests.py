@@ -15,7 +15,7 @@ from tests.helpers.keys import user_key, group_key, app_key
 
 class TestPushManager(unittest.TestCase):
     def setUp(self):
-        self.valid_pm = py_po.PushOverManager(app_key, user_key)
+        self.valid_pm = py_po.PushOverManager(app_key, user_key, group_key=group_key)
 
     def test_inv_app_token(self):
         inv_pm = py_po.PushOverManager(group_key, user_key)
@@ -55,7 +55,35 @@ class TestPushManager(unittest.TestCase):
         self.valid_pm.cancel_retries()
 
     def test_group_info(self):
-        info = self.valid_pm.group_info(group_key)
+        info = self.valid_pm.group_info(group_key=group_key)
+        self.assertEqual(info['name'], 'TestGroup')
+
+        info = self.valid_pm.group_info()
+        self.assertEqual(info['name'], 'TestGroup')
+
+    def test_group_add_del_user(self):
+        self.valid_pm.group_remove_user(user_key)
+        info = self.valid_pm.group_info()
+        self.assertEqual(len(info['users']), 0)
+        self.valid_pm.group_add_user(user_key, device='KronoDroid', memo='Added using UnitTests')
+        info = self.valid_pm.group_info()
+        self.assertEqual(info['users'][0]['device'], 'KronoDroid')
+        self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
+
+    def test_group_disable_enable_user(self):
+        self.valid_pm.group_disable_user(user_key)
+        info = self.valid_pm.group_info()
+        self.assertEqual(info['users'][0]['disabled'], True)
+        self.valid_pm.group_enable_user(user_key)
+        info = self.valid_pm.group_info()
+        self.assertEqual(info['users'][0]['disabled'], False)
+
+    def test_group_rename(self):
+        self.valid_pm.group_rename('KronoTestGroup')
+        info = self.valid_pm.group_info()
+        self.assertEqual(info['name'], 'KronoTestGroup')
+        self.valid_pm.group_rename('TestGroup')
+        info = self.valid_pm.group_info()
         self.assertEqual(info['name'], 'TestGroup')
 
 

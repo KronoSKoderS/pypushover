@@ -1,15 +1,16 @@
 import json
+import requests
 from py_pushover.Constants import Priorities
 
-try:  # Python 3
-    import urllib.request as urllib_request
-    from urllib.parse import urlencode as urllib_encode
-    PYTHON_VER = 3
-
-except ImportError:  # Python 2
-    import urllib2 as urllib_request
-    from urllib import urlencode as urllib_encode
-    PYTHON_VER = 2
+# try:  # Python 3
+#     import urllib.request as urllib_request
+#     from urllib.parse import urlencode as urllib_encode
+#     PYTHON_VER = 3
+#
+# except ImportError:  # Python 2
+#     import urllib2 as urllib_request
+#     from urllib import urlencode as urllib_encode
+#     PYTHON_VER = 2
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
@@ -30,13 +31,26 @@ class PushOverManager(object):
     cancel_retries
     validate_user
     validate_group
+    group_info
+    group_add_user
+    group_remove_user
+    group_disable_user
+    group_enable_user
+    group_rename
     """
     _push_url = "https://api.pushover.net/1/messages.json"
     _validate_url = "https://api.pushover.net/1/users/validate.json"
     _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
     _cancel_receipt_url = "https://api.pushover.net/1/receipts/{receipt}/cancel.json"
+    _group_url = "https://api.pushover.net/1/groups/{group_key}"
+    _group_info_url = _group_url + ".json"
+    _group_add_user_url = _group_url + "/add_user.json"
+    _group_del_user_url = _group_url + "/delete_user.json"
+    _group_dis_user_url = _group_url + "/disable_user.json"
+    _group_ena_user_url = _group_url + "/enable_user.json"
+    _group_ren_url = _group_url + "/rename.json"
 
-    def __init__(self, app_token, client_key=None):
+    def __init__(self, app_token, client_key=None, group_key=None):
         """
 
         :param str app_token: Application token generated from PushOver site
@@ -44,8 +58,10 @@ class PushOverManager(object):
         """
         self._app_token = app_token
         self._client_key = client_key  # Can be a user or group key
+        self._group_key = group_key
         self.latest_response = None
-        self._latest_json_response = None
+        self.latest_response_json = None
+
 
     def push_message(self, message, **kwargs):
         """
@@ -78,7 +94,6 @@ class PushOverManager(object):
             raise ValueError('`client` argument must be set to the group or user id')
 
         data_out = {
-            'token': self._app_token,
             'user': client_key,  # can be a user or group key
             'message': message
         }
@@ -145,8 +160,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self._latest_json_response:
-            receipt_to_check = self._latest_json_response['receipt']
+        if 'receipt' in self.latest_response_json:
+            receipt_to_check = self.latest_response_json['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -158,7 +173,7 @@ class PushOverManager(object):
 
         url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
         self._send(url_to_send)
-        return self._latest_json_response
+        return self.latest_response_json
 
     def cancel_retries(self, receipt=None):
         """
@@ -168,8 +183,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self._latest_json_response:
-            receipt_to_check = self._latest_json_response['receipt']
+        if 'receipt' in self.latest_response_json:
+            receipt_to_check = self.latest_response_json['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -208,12 +223,71 @@ class PushOverManager(object):
 
         self._send(self._validate_url, param_data, check_response=False)
 
-        if self._latest_json_response['status'] == 1:
+        if self.latest_response_json['status'] == 1:
             return True
         else:
             return False
 
-    def _send(self, url, data_out=None, check_response=True):
+    def group_info(self, group_key=None):
+        """
+
+        required params: token
+        :return:
+        """
+        group = None
+
+        if group_key:
+            group = group_key
+        elif self._group_key:
+            group = self._group_key
+        else:
+            raise ValueError("A group key must be supplied")
+
+        self._send(self._group_info_url.format(group_key=group), get_method=True)
+        return self.latest_response_json
+
+    def group_add_user(self):
+        """
+
+        required params: token, user
+        optional params: device, memo
+        :return:
+        """
+        raise NotImplementedError
+
+    def group_remove_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
+        raise NotImplementedError
+
+    def group_disable_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
+        raise NotImplementedError
+
+    def group_enable_user(self):
+        """
+
+        required params: token, user
+        :return:
+        """
+        raise NotImplementedError
+
+    def group_rename(self):
+        """
+
+        required params: token, name
+        :return:
+        """
+        raise NotImplementedError
+
+    def _send(self, url, data_out=None, check_response=True, get_method=False):
         """
         Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as
         well.  A check_response value of False the HTTP response code is checked.  A customized HTTPError is raised if
@@ -223,40 +297,35 @@ class PushOverManager(object):
         :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
         :param bool check_response: check http response and raise exception if an error is detected
         """
-        if data_out:
-            param_data = urllib_encode(data_out)
-            if PYTHON_VER == 3:
-                param_data = param_data.encode("utf-8")
+        if not data_out:
+            data_out = {
+                'token': self._app_token
+            }
         else:
-            param_data = ''
-        req = urllib_request.Request(url, param_data)
+            data_out['token'] = self._app_token
 
-        try:
-            self.latest_response = urllib_request.urlopen(req)
-        except urllib_request.HTTPError as req:
-            self.latest_response = req
-
-        if PYTHON_VER == 3:
-            self._latest_json_response = json.loads(self.latest_response.readall().decode('utf-8'))
+        if get_method:
+            req = requests.get(url, params=data_out)
         else:
-            self._latest_json_response = json.loads(self.latest_response.read())
+            req = requests.post(url, params=data_out)
+
+        self.latest_response = req
+        self.latest_response_json = req.json()
 
         if check_response:
-            self._response_check(self.latest_response)
+            self._response_check()
 
-    def _response_check(self, response):
+    def _response_check(self):
         """
         Checks the HTTP Response code and raises a customized HTTPError based on the Pushover 'errors' response.
-
-        :param Request response: response from server
         """
-        if response.code == 200:
+
+        if self.latest_response.status_code == 200:
             return
 
-        elif 400 <= response.code < 500:
-            error = self._latest_json_response['errors']
-            self.latest_response.msg = error
-            raise self.latest_response
+        elif 400 <= self.latest_response.status_code < 500:
+            error = self.latest_response_json['errors']
+            raise requests.HTTPError(error)
 
         else:
-            raise self.latest_response
+            raise requests.HTTPError()

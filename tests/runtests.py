@@ -1,15 +1,16 @@
 import unittest
 import time
+import requests
 import py_pushover as py_po
-from tests.helpers import user_key, group_key, app_key
+from tests.helpers.keys import user_key, group_key, app_key
 
-try:  # Python 3
-    import urllib.request as urllib_request
-    from urllib.parse import urlencode as urllib_encode
-
-except ImportError:  # Python 2
-    import urllib2 as urllib_request
-    from urllib import urlencode as urllib_encode
+# try:  # Python 3
+#     import urllib.request as urllib_request
+#     from urllib.parse import urlencode as urllib_encode
+#
+# except ImportError:  # Python 2
+#     import urllib2 as urllib_request
+#     from urllib import urlencode as urllib_encode
 
 
 class TestPushManager(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestPushManager(unittest.TestCase):
 
     def test_inv_app_token(self):
         inv_pm = py_po.PushOverManager(group_key, user_key)
-        with self.assertRaises(urllib_request.HTTPError):
+        with self.assertRaises(requests.HTTPError):
             inv_pm.push_message('This should never work')
 
     def test_val_app_token(self):
@@ -52,6 +53,10 @@ class TestPushManager(unittest.TestCase):
         self.valid_pm.push_message("Emergency", priority=py_po.Priorities.Emergency, retry=30, expire=3600)
         time.sleep(5)
         self.valid_pm.cancel_retries()
+
+    def test_group_info(self):
+        info = self.valid_pm.group_info(group_key)
+        self.assertEqual(info['name'], 'TestGroup')
 
 
 if __name__ == "__main__":

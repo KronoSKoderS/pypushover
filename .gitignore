@@ -56,5 +56,5 @@ docs/_build/
 # PyBuilder
 target/
 *.idea
-py_pushover.egg-info/*
-*.pypirc
+tests/helpers/keys.py
+.pypirc

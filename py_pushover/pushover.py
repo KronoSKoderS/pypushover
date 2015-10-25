@@ -50,14 +50,14 @@ class PushOverManager(object):
     _group_ena_user_url = _group_url + "/enable_user.json"
     _group_ren_url = _group_url + "/rename.json"
 
-    def __init__(self, app_token, client_key=None, group_key=None):
+    def __init__(self, app_token, user_key=None, group_key=None):
         """
 
         :param str app_token: Application token generated from PushOver site
         :param str client_key: User or Group key generated from PushOver site
         """
         self._app_token = app_token
-        self._client_key = client_key  # Can be a user or group key
+        self._user_key = user_key  # Can be a user or group key
         self._group_key = group_key
         self.latest_response = None
         self.latest_response_json = None
@@ -68,7 +68,7 @@ class PushOverManager(object):
         Send message to selected user/group/device.
 
         :param str message: your message
-        :param str client: user or group id to send the message to
+        :param str user: user or group id to send the message to
         :param str title: your message's title, otherwise your app's name is used
         :param str device: your user's device name to send the message directly to that device
         :param list device: your user's devices names to send the message directly to that device
@@ -83,10 +83,11 @@ class PushOverManager(object):
         :param str sound: the name of the sound to override the user's default sound choice
                           (Use the Sounds class to select)
         """
+        ret_receipt = False
 
         # determine if client key has already been saved.  If not then get argument
-        client_key = self._client_key
-        if 'client' in kwargs:
+        client_key = self._user_key if self._user_key else self._group_key
+        if 'user' in kwargs:
             client_key = kwargs['client']
 
         # client key required to push message
@@ -142,12 +143,17 @@ class PushOverManager(object):
 
                     data_out['expire'] = expire_val
 
+                ret_receipt = True
+
         if 'timestamp' in kwargs:
             data_out['timestamp'] = kwargs['timestamp']
         if 'sound' in kwargs:
             data_out['sound'] = kwargs['sound']
 
         self._send(self._push_url, data_out)
+
+        if ret_receipt:
+            return self.latest_response_json['receipt']
 
     def check_receipt(self, receipt=None):
         """

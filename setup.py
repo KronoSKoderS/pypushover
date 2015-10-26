@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+install_requires = ['requests']
+
+version = '0.0.1a1'
+
 try:
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')
@@ -8,7 +12,7 @@ except ImportError:
 
 setup(
     name='py_pushover',
-    version='0.0.1a1',
+    version=version,
     description='Object Oriented API calls to the Pushover Service',
     long_description=long_description,
     url='https://github.com/KronosKoderS/py_pushover',
@@ -30,4 +34,6 @@ setup(
     ],
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+    install_requires=install_requires,
+    test_suite="tests.get_tests"
 )

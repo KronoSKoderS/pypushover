@@ -55,10 +55,10 @@ class TestPushManager(unittest.TestCase):
 
     def test_group_info(self):
         info = self.valid_pm.group_info(group_key=group_key)
-        self.assertEqual(info['name'], 'TestGroup')
+        self.assertEqual(info['name'], 'KronoTestGroup')
 
         info = self.valid_pm.group_info()
-        self.assertEqual(info['name'], 'TestGroup')
+        self.assertEqual(info['name'], 'KronoTestGroup')
 
     def test_group_add_del_user(self):
         self.valid_pm.group_remove_user(user_key)

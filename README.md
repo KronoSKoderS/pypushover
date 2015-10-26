@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/travis-ci/travis-web.png?branch=master)](https://travis-ci.org/KronosKoderS/py_pushover)
+[![Build Status](https://travis-ci.org/KronosKoderS/py_pushover.svg?branch=master)](https://travis-ci.org/KronosKoderS/py_pushover)
 
 # py_pushover
 Object Oriented Python bindings to the [Push Over API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  See the [Wiki](https://github.com/KronosKoderS/py_pushover/wiki) for more detailed information regarding usage.  

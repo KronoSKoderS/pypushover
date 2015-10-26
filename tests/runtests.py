@@ -2,7 +2,14 @@ import unittest
 import time
 import requests
 import py_pushover as py_po
-from tests.helpers.keys import user_key, group_key, app_key
+
+try:
+    from tests.helpers.keys import user_key, group_key, app_key
+except ImportError:  # support for Travis CI
+    import os
+    app_key = os.environ['app_key']
+    group_key = os.environ['group_key']
+    user_key = os.environ['user_key']
 
 
 class TestPushManager(unittest.TestCase):

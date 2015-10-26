@@ -2,16 +2,6 @@ import json
 import requests
 from py_pushover.Constants import Priorities
 
-# try:  # Python 3
-#     import urllib.request as urllib_request
-#     from urllib.parse import urlencode as urllib_encode
-#     PYTHON_VER = 3
-#
-# except ImportError:  # Python 2
-#     import urllib2 as urllib_request
-#     from urllib import urlencode as urllib_encode
-#     PYTHON_VER = 2
-
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
 

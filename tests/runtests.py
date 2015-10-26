@@ -4,14 +4,6 @@ import requests
 import py_pushover as py_po
 from tests.helpers.keys import user_key, group_key, app_key
 
-# try:  # Python 3
-#     import urllib.request as urllib_request
-#     from urllib.parse import urlencode as urllib_encode
-#
-# except ImportError:  # Python 2
-#     import urllib2 as urllib_request
-#     from urllib import urlencode as urllib_encode
-
 
 class TestPushManager(unittest.TestCase):
     def setUp(self):

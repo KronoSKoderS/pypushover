@@ -78,9 +78,9 @@ class TestPushManager(unittest.TestCase):
         self.assertEqual(info['users'][0]['disabled'], False)
 
     def test_group_rename(self):
-        self.valid_pm.group_rename('KronoTestGroup1')
+        self.valid_pm.group_rename('KronoGroup')
         info = self.valid_pm.group_info()
-        self.assertEqual(info['name'], 'KronoTestGroup1')
+        self.assertEqual(info['name'], 'KronoGroup')
         self.valid_pm.group_rename('KronoTestGroup')
         info = self.valid_pm.group_info()
         self.assertEqual(info['name'], 'KronoTestGroup')

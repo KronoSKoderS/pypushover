@@ -5,8 +5,8 @@ This is to be used with the 'priority' arguemnt of the PushOverManager.push_noti
 
 see also: https://pushover.net/api#priority
 """
-Lowest = -2     # no notification/alert
-Low = -1        # quiet notification
-Normal = 0      # normal
-High = 1        # high-priority (bypass user's quiet hours)
-Emergency = 2   # require confirmation from the user (bypass users's quiet hours)
+LOWEST = -2     # no notification/alert
+LOW = -1        # quiet notification
+NORMAL = 0      # normal
+HIGH = 1        # high-priority (bypass user's quiet hours)
+EMERGENCY = 2   # require confirmation from the user (bypass users's quiet hours)

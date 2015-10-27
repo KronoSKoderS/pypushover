@@ -1,4 +1,3 @@
-import json
 import requests
 from py_pushover.Constants import Priorities
 
@@ -6,52 +5,76 @@ _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
 
 
-class PushOverManager(object):
-    """
-    Push Over Manager - Class for interfacing with the Pushover API.
-
-    Properties:
-    -----------
-    latest_response
-
-    Methods:
-    --------
-    push_notification - pushes a notification to a device, user or group.
-    check_receipt
-    cancel_retries
-    validate_user
-    validate_group
-    group_info
-    group_add_user
-    group_remove_user
-    group_disable_user
-    group_enable_user
-    group_rename
-    """
-    _push_url = "https://api.pushover.net/1/messages.json"
-    _validate_url = "https://api.pushover.net/1/users/validate.json"
-    _receipt_url = "https://api.pushover.net/1/receipts/{receipt}.json?token={app_token}"
-    _cancel_receipt_url = "https://api.pushover.net/1/receipts/{receipt}/cancel.json"
-    _group_url = "https://api.pushover.net/1/groups/{group_key}"
-    _group_info_url = _group_url + ".json"
-    _group_add_user_url = _group_url + "/add_user.json"
-    _group_del_user_url = _group_url + "/delete_user.json"
-    _group_dis_user_url = _group_url + "/disable_user.json"
-    _group_ena_user_url = _group_url + "/enable_user.json"
-    _group_ren_url = _group_url + "/rename.json"
+class _BaseManager(object):
+    _base_url = "https://api.pushover.net/1/"
+    _api_version = 1
 
     def __init__(self, app_token, user_key=None, group_key=None):
         """
-
-        :param str app_token: Application token generated from PushOver site
-        :param str client_key: User or Group key generated from PushOver site
+        Base class for the Push Over API
+        :param string app_token: Application token generated from PushOver site
+        :param string user_key: User key generated from PushOver site
+        :param string group_key: Group key generated from PushOver site
         """
         self._app_token = app_token
-        self._user_key = user_key  # Can be a user or group key
+        self._user_key = user_key
         self._group_key = group_key
-        self.latest_response = None
-        self.latest_response_json = None
+        self._latest_response = None
+        self.latest_response_dict = None
 
+    def _send(self, url, data_out=None, check_response=True, get_method=False):
+        """
+        Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as
+        well.  A check_response value of False the HTTP response code is checked.  A customized HTTPError is raised if
+        an error is detected.
+
+        :param string url: url of the site to send the request to (http://www.site.com)
+        :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
+        :param bool check_response: check http response and raise exception if an error is detected
+        """
+        if not data_out:
+            data_out = {
+                'token': self._app_token
+            }
+        else:
+            data_out['token'] = self._app_token
+
+        if get_method:
+            req = requests.get(url, params=data_out)
+        else:
+            req = requests.post(url, params=data_out)
+
+        self._latest_response = req
+        self.latest_response_dict = req.json()
+
+        if check_response:
+            self._response_check()
+
+    def _response_check(self):
+        """
+        Checks the HTTP Response code and raises a customized HTTPError based on the Pushover 'errors' response.
+        """
+
+        if self._latest_response.status_code == 200:
+            return
+
+        elif 400 <= self._latest_response.status_code < 500:
+            error = self.latest_response_dict['errors']
+            raise requests.HTTPError(error)
+
+        else:
+            raise requests.HTTPError()
+
+
+class MessageManager(_BaseManager):
+    def __init__(self, app_token, receiver_key):
+        super().__init__(app_token, user_key=receiver_key, group_key=receiver_key)
+
+        self._push_url = self._base_url + "messages.json"
+        self._base_receipt_url = self._base_url + "receipts/{receipt}"
+        self._receipt_url = self._base_receipt_url + ".json"
+        self._cancel_receipt_url = self._base_receipt_url + "/cancel.json"
+        raise NotImplementedError
 
     def push_message(self, message, **kwargs):
         """
@@ -143,7 +166,7 @@ class PushOverManager(object):
         self._send(self._push_url, data_out)
 
         if ret_receipt:
-            return self.latest_response_json['receipt']
+            return self.latest_response_dict['receipt']
 
     def check_receipt(self, receipt=None):
         """
@@ -156,8 +179,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self.latest_response_json:
-            receipt_to_check = self.latest_response_json['receipt']
+        if 'receipt' in self.latest_response_dict:
+            receipt_to_check = self.latest_response_dict['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -167,9 +190,9 @@ class PushOverManager(object):
         if receipt_to_check is None:
             raise TypeError('Missing required `receipt` argument')
 
-        url_to_send = self._receipt_url.format(receipt=receipt_to_check, app_token=self._app_token)
+        url_to_send = self._receipt_url.format(receipt=receipt_to_check)
         self._send(url_to_send)
-        return self.latest_response_json
+        return self.latest_response_dict
 
     def cancel_retries(self, receipt=None):
         """
@@ -179,8 +202,8 @@ class PushOverManager(object):
         receipt_to_check = None
 
         # check to see if previous response had a `receipt`
-        if 'receipt' in self.latest_response_json:
-            receipt_to_check = self.latest_response_json['receipt']
+        if 'receipt' in self.latest_response_dict:
+            receipt_to_check = self.latest_response_dict['receipt']
 
         # function `receipt` argument takes precedence
         if receipt:
@@ -193,16 +216,23 @@ class PushOverManager(object):
         url_to_send = self._cancel_receipt_url.format(receipt=receipt_to_check)
         self._send(url_to_send, data_out={'token': self._app_token})
 
-    def validate_user(self, user_id, device=None):
+
+class VerificationManager(_BaseManager):
+    def __init__(self, app_token):
+        super().__init__(app_token)
+        self._validate_url = self._base_url + "/users/validate.json"
+        raise NotImplementedError
+
+    def verify_user(self, user_id, device=None):
         """
         Validates whether a userID is a valid id and returns a Boolean as a result
 
         :param user_id:
         :return bool:
         """
-        return self.validate_group(user_id, device)
+        return self.verify_group(user_id, device)
 
-    def validate_group(self, group_id, device=None):
+    def verify_group(self, group_id, device=None):
         """
         Validates whether a groupID is a valid ID and returns a Boolean as a result
 
@@ -219,10 +249,30 @@ class PushOverManager(object):
 
         self._send(self._validate_url, param_data, check_response=False)
 
-        if self.latest_response_json['status'] == 1:
+        if self.latest_response_dict['status'] == 1:
             return True
         else:
             return False
+
+
+class SubscriptionManager(_BaseManager):
+    def __init__(self, app_token, user_key, sub_code):
+        super().__init__(app_token, user_key=user_key)
+        self._sub_code = sub_code
+        raise NotImplementedError
+
+
+class GroupManager(_BaseManager):
+    def __init__(self, app_token, group_key):
+        super().__init__(app_token, group_key=group_key)
+        self._group_url = self._base_url + "groups/{group_key}"
+        self._group_info_url = self._group_url + ".json"
+        self._group_add_user_url = self._group_url + "/add_user.json"
+        self._group_del_user_url = self._group_url + "/delete_user.json"
+        self._group_dis_user_url = self._group_url + "/disable_user.json"
+        self._group_ena_user_url = self._group_url + "/enable_user.json"
+        self._group_ren_url = self._group_url + "/rename.json"
+        raise NotImplementedError
 
     def group_info(self, group_key=None):
         """
@@ -232,8 +282,6 @@ class PushOverManager(object):
         classes group key is used.
         :return: A dictionary representing the json response.
         """
-        group = None
-
         if group_key:
             group = group_key
         elif self._group_key:
@@ -242,7 +290,7 @@ class PushOverManager(object):
             raise ValueError("A group key must be supplied")
 
         self._send(self._group_info_url.format(group_key=group), get_method=True)
-        return self.latest_response_json
+        return self.latest_response_dict
 
     def group_add_user(self, user, group_key=None, device=None, memo=None):
         """
@@ -279,8 +327,6 @@ class PushOverManager(object):
         :return:
         """
 
-        group = None
-
         if group_key:
             group = group_key
         elif self._group_key:
@@ -300,8 +346,6 @@ class PushOverManager(object):
         required params: user
         :return:
         """
-
-        group = None
 
         if group_key:
             group = group_key
@@ -345,8 +389,6 @@ class PushOverManager(object):
         :return:
         """
 
-        group = None
-
         if group_key:
             group = group_key
         elif self._group_key:
@@ -360,45 +402,21 @@ class PushOverManager(object):
 
         self._send(self._group_ren_url.format(group_key=group), param_data)
 
-    def _send(self, url, data_out=None, check_response=True, get_method=False):
-        """
-        Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as
-        well.  A check_response value of False the HTTP response code is checked.  A customized HTTPError is raised if
-        an error is detected.
 
-        :param string url: url of the site to send the request to (http://www.site.com)
-        :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
-        :param bool check_response: check http response and raise exception if an error is detected
-        """
-        if not data_out:
-            data_out = {
-                'token': self._app_token
-            }
-        else:
-            data_out['token'] = self._app_token
-
-        if get_method:
-            req = requests.get(url, params=data_out)
-        else:
-            req = requests.post(url, params=data_out)
-
-        self.latest_response = req
-        self.latest_response_json = req.json()
-
-        if check_response:
-            self._response_check()
-
-    def _response_check(self):
-        """
-        Checks the HTTP Response code and raises a customized HTTPError based on the Pushover 'errors' response.
+class LicenseManager(_BaseManager):
+    def __init__(self, app_token, user_key=None, email=None):
         """
 
-        if self.latest_response.status_code == 200:
-            return
+        """
+        super().__init__(app_token, user_key=user_key)
+        self._email = email
 
-        elif 400 <= self.latest_response.status_code < 500:
-            error = self.latest_response_json['errors']
-            raise requests.HTTPError(error)
+        if self._email is None and self._user_key is None:
+            raise NotImplementedError  # todo: identify or create a relevant error
+        raise NotImplementedError
 
-        else:
-            raise requests.HTTPError()
+
+class ClientManager(_BaseManager):
+    def __init__(self, app_token):
+        super().__init__(app_token)
+        raise NotImplementedError

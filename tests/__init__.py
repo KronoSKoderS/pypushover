@@ -4,9 +4,16 @@ import unittest
 def get_tests():
     return full_suite()
 
+
 def full_suite():
-    from .runtests import TestPushManager
+    from .runtests import TestBasic, TestClient, TestGroup, TestLicense, TestMessage, TestSubscription, TestVerifcation
 
-    pushmansuite = unittest.TestLoader().loadTestsFromTestCase(TestPushManager)
-
-    return unittest.TestSuite([pushmansuite])
+    return unittest.TestSuite([
+        unittest.TestLoader().loadTestsFromTestCase(TestBasic),
+        unittest.TestLoader().loadTestsFromTestCase(TestClient),
+        unittest.TestLoader().loadTestsFromTestCase(TestGroup),
+        unittest.TestLoader().loadTestsFromTestCase(TestLicense),
+        unittest.TestLoader().loadTestsFromTestCase(TestMessage),
+        unittest.TestLoader().loadTestsFromTestCase(TestSubscription),
+        unittest.TestLoader().loadTestsFromTestCase(TestVerifcation)
+    ])

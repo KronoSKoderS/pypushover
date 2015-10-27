@@ -19,10 +19,30 @@
     </section>
 
     <section class="main-content">
-      <h1>
+      <p><a href="https://travis-ci.org/KronosKoderS/py_pushover"><img src="https://travis-ci.org/KronosKoderS/py_pushover.svg?branch=master" alt="Build Status"></a></p>
+
+<h1>
 <a id="py_pushover" class="anchor" href="#py_pushover" aria-hidden="true"><span class="octicon octicon-link"></span></a>py_pushover</h1>
 
-<p>Python bindings to the Push Over API.  Supports both python 2 and 3.  </p>
+<p>Object Oriented Python bindings to the <a href="https://pushover.net/api">Push Over API</a>.  Supports both python 2.7.x and 3.x.  See the <a href="https://github.com/KronosKoderS/py_pushover/wiki">Wiki</a> for more detailed information regarding usage.  </p>
+
+<h1>
+<a id="instatllation" class="anchor" href="#instatllation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instatllation</h1>
+
+<h2>
+<a id="pypi" class="anchor" href="#pypi" aria-hidden="true"><span class="octicon octicon-link"></span></a>PyPi</h2>
+
+<p>execute <code>pip install py-pushover</code></p>
+
+<h2>
+<a id="manual-installation" class="anchor" href="#manual-installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Manual Installation</h2>
+
+<ol>
+<li>Download the source code from Github</li>
+<li>navigate to the downloaded folder</li>
+<li>execute <code>python setup.py install</code>
+</li>
+</ol>
 
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
@@ -34,45 +54,6 @@
 pm = py_po.PushManager('&lt;Token&gt;', '&lt;Group_Key&gt;')
 pm.push_notification('Message Body', title="Title")
 </code></pre>
-
-<h2>
-<a id="changing-sounds" class="anchor" href="#changing-sounds" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changing Sounds:</h2>
-
-<pre><code># Send notification with the Long Pushover Echo notification sound
-pm.push_notification('Title', 'Message Body', sound=py_po.Sounds.Long_Pushover_Echo)
-</code></pre>
-
-<h2>
-<a id="select-priority" class="anchor" href="#select-priority" aria-hidden="true"><span class="octicon octicon-link"></span></a>Select Priority:</h2>
-
-<pre><code># Send notification with the Lowest Priority
-pm.push_notification('Title', 'Message Body', priority=py_po.Priority.Lowest)
-pm.push_notification('Title', 'Message Body', priority=py_po.Emergency, retry=30, expire=3600)
-</code></pre>
-
-<h2>
-<a id="check-receipt" class="anchor" href="#check-receipt" aria-hidden="true"><span class="octicon octicon-link"></span></a>Check Receipt:</h2>
-
-<pre><code># Can check that last responses receipt (Note push notificiaton with a priority of Emergency is required first)
-pm.check_receipt()
-# Can check a custom receipt
-pm.check_receipt('&lt;receipt token&gt;')
-</code></pre>
-
-<h1>
-<a id="future-work" class="anchor" href="#future-work" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future Work:</h1>
-
-<ul>
-<li><strike>Emergency Priority confirmation and additional support</strike></li>
-<li>Asynchronous method for <code>push_notification</code>
-</li>
-<li><strike>User/Group Verification API</strike></li>
-<li><strike>Receipt API</strike></li>
-<li>Subscriptions API</li>
-<li>Group Management API</li>
-<li>Licensing API</li>
-<li>BETA Open Client API</li>
-</ul>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/KronosKoderS/py_pushover">py_pushover</a> is maintained by <a href="https://github.com/KronosKoderS">KronosKoderS</a>.</span>

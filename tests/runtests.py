@@ -14,7 +14,7 @@ except ImportError:  # support for Travis CI
 
 class TestMessage(unittest.TestCase):
     def setUp(self):
-        self.valid_pm = py_po.message.MessageManager(app_key)
+        self.valid_pm = py_po.message.MessageManager(app_key, user_key)
 
     def test_val_msg(self):
         self.valid_pm.push_message('This should always work')
@@ -22,18 +22,26 @@ class TestMessage(unittest.TestCase):
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency!', priority=py_po.Priorities.Emergency)
+            self.valid_pm.push_message('Emergency!', priority=py_po.PRIORITIES.EMERGENCY)
+            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.Priorities.Emergency, retry=30)
+            self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            py_po.message.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.Priorities.Emergency, expire=3600)
+            self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            py_po.message.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
 
     def test_val_emergency_msg(self):
-        self.valid_pm.push_message("Emergency", priority=py_po.Priorities.Emergency, retry=30, expire=3600)
-        time.sleep(5)
-        self.valid_pm.cancel_retries()
+        res = self.valid_pm.push_message("Emergency", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        time.sleep(0.5)
+        self.valid_pm.check_receipt(res['receipt'])
+        self.valid_pm.cancel_retries(res['receipt'])
+        res = py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        time.sleep(0.5)
+        py_po.message.check_receipt(app_key, res['receipt'])
+        py_po.message.cancel_retries(app_key, res['receipt'])
 
 
 class TestGroup(unittest.TestCase):

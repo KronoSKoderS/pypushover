@@ -1,10 +1,10 @@
-from py_pushover import _BaseManager
+from py_pushover import _BaseManager, _base_url
 
 
 class VerificationManager(_BaseManager):
     def __init__(self, app_token):
         super().__init__(app_token)
-        self._validate_url = self._base_url + "/users/validate.json"
+        self._validate_url = _base_url + "/users/validate.json"
         raise NotImplementedError
 
     def verify_user(self, user_id, device=None):

@@ -1,4 +1,4 @@
-from py_pushover import Priorities, _BaseManager, _send, _base_url
+from py_pushover import PRIORITIES, _BaseManager
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
@@ -12,7 +12,6 @@ _cancel_receipt_url = _base_receipt_url + "/cancel.json"
 class MessageManager(_BaseManager):
     def __init__(self, app_token, receiver_key=None):
         super().__init__(app_token, user_key=receiver_key, group_key=receiver_key)
-        raise NotImplementedError
 
     def push_message(self, message, **kwargs):
 
@@ -28,9 +27,7 @@ class MessageManager(_BaseManager):
             raise ValueError('`user` argument must be set to the group or user id')
 
         self.latest_response_dict = push_message(self._app_token, client_key, message, **kwargs)
-
-        if ret_receipt:
-            return self.latest_response_dict['receipt']
+        return self.latest_response_dict
 
     def check_receipt(self, receipt=None):
         """
@@ -54,8 +51,7 @@ class MessageManager(_BaseManager):
         if receipt_to_check is None:
             raise TypeError('Missing required `receipt` argument')
 
-        url_to_send = self._receipt_url.format(receipt=receipt_to_check)
-        self._send(url_to_send)
+        self.latest_response_dict = check_receipt(self._app_token, receipt_to_check)
         return self.latest_response_dict
 
     def cancel_retries(self, receipt=None):
@@ -77,8 +73,8 @@ class MessageManager(_BaseManager):
         if receipt_to_check is None:
             raise TypeError('Missing required `receipt` argument')
 
-        url_to_send = self._cancel_receipt_url.format(receipt=receipt_to_check)
-        self._send(url_to_send, data_out={'token': self._app_token})
+        self.latest_response_dict = cancel_retries(self._app_token, receipt_to_check)
+        return self.latest_response_dict
 
 
 def push_message(token, user, message, **kwargs):
@@ -126,7 +122,7 @@ def push_message(token, user, message, **kwargs):
         data_out['priority'] = kwargs['priority']
 
         # Emergency prioritized messages require 'retry' and 'expire' to be defined
-        if data_out['priority'] == Priorities.Emergency:
+        if data_out['priority'] == PRIORITIES.EMERGENCY:
             if 'retry' not in kwargs:
                 raise TypeError('Missing `retry` argument required for message priority of Emergency')
             else:
@@ -163,8 +159,11 @@ def push_message(token, user, message, **kwargs):
 
 
 def check_receipt(token, receipt, **kwargs):
-    raise NotImplementedError
+    url_to_send = _receipt_url.format(receipt=receipt)
+    return _send(url_to_send)
 
 
 def cancel_retries(token, receipt, **kwargs):
-    raise NotImplementedError
+    url_to_send = _cancel_receipt_url.format(receipt=receipt)
+    return _send(url_to_send, data_out={'token': token})
+

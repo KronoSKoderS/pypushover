@@ -1,6 +1,7 @@
 import requests
 
 from py_pushover.Constants import PRIORITIES, SOUNDS
+from . import _BaseManager
 from py_pushover import client, groups, license, message, subscription, verification
 
 

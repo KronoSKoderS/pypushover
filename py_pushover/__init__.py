@@ -1,11 +1,9 @@
 import requests
 
 from py_pushover.Constants import PRIORITIES, SOUNDS
-from . import _BaseManager
-from py_pushover import client, groups, license, message, subscription, verification
 
 
-__all__ = ['Priorities', 'Sounds', 'client', 'groups', 'license', 'message', 'subscription', 'verification']
+__all__ = ['PRIORITIES', 'SOUNDS', 'client', 'groups', 'license', 'message', 'subscription', 'verification']
 
 _base_url = "https://api.pushover.net/1/"
 

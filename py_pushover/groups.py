@@ -1,9 +1,10 @@
-from py_pushover import _BaseManager
+from py_pushover import BaseManager, base_url
 
-class GroupManager(_BaseManager):
+
+class GroupManager(BaseManager):
     def __init__(self, app_token, group_key):
         super().__init__(app_token, group_key=group_key)
-        self._group_url = self._base_url + "groups/{group_key}"
+        self._group_url = base_url + "groups/{group_key}"
         self._group_info_url = self._group_url + ".json"
         self._group_add_user_url = self._group_url + "/add_user.json"
         self._group_del_user_url = self._group_url + "/delete_user.json"

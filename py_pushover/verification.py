@@ -1,10 +1,10 @@
-from py_pushover import _BaseManager, _base_url
+from py_pushover import BaseManager, base_url
 
 
-class VerificationManager(_BaseManager):
+class VerificationManager(BaseManager):
     def __init__(self, app_token):
         super().__init__(app_token)
-        self._validate_url = _base_url + "/users/validate.json"
+        self._validate_url = base_url + "/users/validate.json"
         raise NotImplementedError
 
     def verify_user(self, user_id, device=None):
@@ -31,7 +31,7 @@ class VerificationManager(_BaseManager):
         if device:
             param_data['device'] = device
 
-        self._send(self._validate_url, param_data, check_response=False)
+        self._send(self._validate_url, param_data)
 
         if self.latest_response_dict['status'] == 1:
             return True

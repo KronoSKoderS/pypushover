@@ -1,7 +1,7 @@
-from py_pushover import _BaseManager
+from py_pushover import BaseManager
 
 
-class LicenseManager(_BaseManager):
+class LicenseManager(BaseManager):
     def __init__(self, app_token, user_key=None, email=None):
         """
 

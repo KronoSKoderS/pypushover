@@ -1,9 +1,9 @@
 import requests
 
+base_url = "https://api.pushover.net/1/"
 
-class _BaseManager(object):
 
-    _base_url = "https://api.pushover.net/1/"
+class BaseManager(object):
 
     def __init__(self, app_token, user_key=None, group_key=None):
         """
@@ -34,11 +34,11 @@ class _BaseManager(object):
         else:
             data_out['token'] = self._app_token
 
-        self.latest_response_dict = _send(url, data_out=data_out, get_method=get_method)
+        self.latest_response_dict = send(url, data_out=data_out, get_method=get_method)
         return self.latest_response_dict
 
 
-def _send(url, data_out=None, get_method=False):
+def send(url, data_out=None, get_method=False):
     if get_method:
         res = requests.get(url, params=data_out)
         res.raise_for_status()

@@ -1,7 +1,7 @@
-from py_pushover import _BaseManager
+from py_pushover import BaseManager
 
 
-class SubscriptionManager(_BaseManager):
+class SubscriptionManager(BaseManager):
     def __init__(self, app_token, user_key, sub_code):
         super().__init__(app_token, user_key=user_key)
         self._sub_code = sub_code

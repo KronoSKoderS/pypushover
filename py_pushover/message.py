@@ -1,15 +1,15 @@
-from py_pushover import PRIORITIES, _BaseManager
+from py_pushover import PRIORITIES, BaseManager, base_url, send
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
 
-_push_url = _base_url + "messages.json"
-_base_receipt_url = _base_url + "receipts/{receipt}"
+_push_url = base_url + "messages.json"
+_base_receipt_url = base_url + "receipts/{receipt}"
 _receipt_url = _base_receipt_url + ".json"
 _cancel_receipt_url = _base_receipt_url + "/cancel.json"
 
 
-class MessageManager(_BaseManager):
+class MessageManager(BaseManager):
     def __init__(self, app_token, receiver_key=None):
         super().__init__(app_token, user_key=receiver_key, group_key=receiver_key)
 
@@ -31,7 +31,7 @@ class MessageManager(_BaseManager):
 
     def check_receipt(self, receipt=None):
         """
-        Gets the receipt status of the selected notificiation.  Returns a dictionary of the results
+        Gets the receipt status of the selected notification.  Returns a dictionary of the results
 
         see also https://pushover.net/api#receipt
         :param string receipt: the notification receipt to check
@@ -155,15 +155,15 @@ def push_message(token, user, message, **kwargs):
     if 'sound' in kwargs:
         data_out['sound'] = kwargs['sound']
 
-    return _send(_push_url, data_out=data_out)
+    return send(_push_url, data_out=data_out)
 
 
 def check_receipt(token, receipt, **kwargs):
     url_to_send = _receipt_url.format(receipt=receipt)
-    return _send(url_to_send)
+    return send(url_to_send, data_out={'token': token}, get_method=True)
 
 
 def cancel_retries(token, receipt, **kwargs):
     url_to_send = _cancel_receipt_url.format(receipt=receipt)
-    return _send(url_to_send, data_out={'token': token})
+    return send(url_to_send, data_out={'token': token})
 

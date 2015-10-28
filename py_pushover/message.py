@@ -11,7 +11,7 @@ _cancel_receipt_url = _base_receipt_url + "/cancel.json"
 
 class MessageManager(BaseManager):
     def __init__(self, app_token, receiver_key=None):
-        super().__init__(app_token, user_key=receiver_key, group_key=receiver_key)
+        super(MessageManager, self).__init__(app_token, user_key=receiver_key, group_key=receiver_key)
 
     def push_message(self, message, **kwargs):
 

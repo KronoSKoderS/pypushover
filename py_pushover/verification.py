@@ -1,10 +1,11 @@
-from py_pushover import BaseManager, base_url
+from py_pushover import BaseManager, base_url, send
+
+verify_url = base_url + "/users/validate.json"
 
 
 class VerificationManager(BaseManager):
     def __init__(self, app_token):
         super(VerificationManager, self).__init__(app_token)
-        self._validate_url = base_url + "/users/validate.json"
 
     def verify_user(self, user_id, device=None):
         """
@@ -13,7 +14,8 @@ class VerificationManager(BaseManager):
         :param user_id:
         :return bool:
         """
-        return self.verify_group(user_id, device)
+
+        return verify_user(self._app_token, user_id, device=device)
 
     def verify_group(self, group_id, device=None):
         """
@@ -22,17 +24,22 @@ class VerificationManager(BaseManager):
         :param group_id:
         :return bool:
         """
-        param_data = {
-            'token': self._app_token,
-            'user': group_id
-        }
 
-        if device:
-            param_data['device'] = device
+        return verify_group(self._app_token, group_id, device=device)
 
-        self._send(self._validate_url, param_data)
 
-        if self.latest_response_dict['status'] == 1:
-            return True
-        else:
-            return False
+def verify_user(app_token, user, device=None):
+    return verify_group(app_token, user, device)
+
+
+def verify_group(app_token, group_id, device=None):
+
+    param_data = {
+        'token': app_token,
+        'user': group_id,
+    }
+
+    if device:
+        param_data['device'] = device
+
+    return send(verify_url, param_data)['status'] == 1  # An HTTPError will be raised if invalid

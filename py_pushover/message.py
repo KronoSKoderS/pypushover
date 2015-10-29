@@ -17,10 +17,11 @@ class MessageManager(BaseManager):
 
         ret_receipt = False
 
-        # determine if client key has already been saved.  If not then get argument
-        client_key = self._user_key
+        # determine if client key has already been saved.  If not then get argument.  Group key takes priority
+        client_key = self._group_key if self._group_key else self._user_key
         if 'user' in kwargs:
-            client_key = kwargs['client']
+            client_key = kwargs['user']
+            kwargs.pop('user')
 
         # client key required to push message
         if client_key is None:
@@ -129,7 +130,7 @@ def push_message(token, user, message, **kwargs):
                 retry_val = kwargs['retry']
 
                 # 'retry' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if _MAX_EXPIRE < retry_val < _MIN_RETRY:
+                if not (_MIN_RETRY <= retry_val <= _MAX_EXPIRE):
                     raise ValueError('`retry` argument must be at a minimum of {} and a maximum of {}'.format(
                         _MIN_RETRY, _MAX_EXPIRE
                     ))
@@ -141,7 +142,7 @@ def push_message(token, user, message, **kwargs):
                 expire_val = kwargs['expire']
 
                 # 'expire' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if _MAX_EXPIRE < expire_val < _MIN_RETRY:
+                if not(_MIN_RETRY < expire_val < _MAX_EXPIRE):
                     raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
                         _MIN_RETRY, _MAX_EXPIRE
                     ))

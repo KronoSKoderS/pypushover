@@ -17,8 +17,15 @@ class TestMessage(unittest.TestCase):
         self.valid_pm = py_po.message.MessageManager(app_key, user_key)
 
     def test_val_msg(self):
-        self.valid_pm.push_message('This should always work')
-        py_po.message.push_message(app_key, user_key, 'This should always work')
+        self.valid_pm.push_message('Testing normal push (Manager method)')
+        py_po.message.push_message(app_key, user_key, 'Testing normal message push (static function)')
+        val_pm = py_po.message.MessageManager(app_key)
+        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key)
+
+    def test_inv_msg(self):
+        inv_pm = py_po.message.MessageManager(app_key)
+        with self.assertRaises(ValueError):
+            inv_pm.push_message('Missin User Key')
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
@@ -31,16 +38,21 @@ class TestMessage(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
-            py_po.message.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
 
-    def test_val_emergency_msg(self):
+        with self.assertRaises(ValueError):
+            self.valid_pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
+            py_po.message.push_message(app_key, user_key, 'Invalid retry', expire=3600, retry=20)
+
+    def test_emergency_msg(self):
         res = self.valid_pm.push_message("Emergency", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
-        self.valid_pm.check_receipt(res['receipt'])
+        self.assertEqual(self.valid_pm.check_receipt()['status'], 1)
+        self.assertEqual(self.valid_pm.check_receipt(res['receipt'])['status'], 1)
         self.valid_pm.cancel_retries(res['receipt'])
         res = py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
-        py_po.message.check_receipt(app_key, res['receipt'])
+        self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
         py_po.message.cancel_retries(app_key, res['receipt'])
 
 

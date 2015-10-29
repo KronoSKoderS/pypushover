@@ -12,4 +12,6 @@ install:
   - pip install -r requirements.txt
 # command to run tests
 script:
-  - python setup.py test
+  - coverage run --source=py_pushover setup.py test
+after_success:
+  coveralls

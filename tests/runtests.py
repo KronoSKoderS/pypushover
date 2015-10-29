@@ -86,18 +86,20 @@ class TestVerifcation(unittest.TestCase):
         self.valid_pm = py_po.verification.VerificationManager(app_key)
 
     def test_val_user(self):
-        self.assertTrue(self.valid_pm.validate_user(user_key))
+        self.assertTrue(self.valid_pm.verify_user(user_key))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
-        self.assertFalse(self.valid_pm.validate_user(inv_user_key))
+        with self.assertRaises(requests.HTTPError):
+            self.valid_pm.verify_user(inv_user_key)
 
     def test_val_group(self):
-        self.assertTrue(self.valid_pm.validate_group(group_key))
+        self.assertTrue(self.valid_pm.verify_group(group_key))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"
-        self.assertFalse(self.valid_pm.validate_group(inv_group_key))
+        with self.assertRaises(requests.HTTPError):
+            self.valid_pm.verify_group(inv_group_key)
 
 
 class TestSubscription(unittest.TestCase):
@@ -119,7 +121,8 @@ class TestBasic(unittest.TestCase):
     def test_inv_app_token(self):
         inv_pm = py_po.message.MessageManager(group_key, user_key)
         with self.assertRaises(requests.HTTPError):
-            raise NotImplementedError  # todo: check that raises error and that returned error message is api key issue
+            inv_pm.push_message('This will never work')
+            py_po.message.push_message(group_key, app_key, 'This will never work')
 
 if __name__ == "__main__":
     unittest.main()

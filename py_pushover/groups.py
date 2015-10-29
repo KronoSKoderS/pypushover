@@ -3,7 +3,7 @@ from py_pushover import BaseManager, base_url
 
 class GroupManager(BaseManager):
     def __init__(self, app_token, group_key):
-        super().__init__(app_token, group_key=group_key)
+        super(GroupManager, self).__init__(app_token, group_key=group_key)
         self._group_url = base_url + "groups/{group_key}"
         self._group_info_url = self._group_url + ".json"
         self._group_add_user_url = self._group_url + "/add_user.json"
@@ -11,7 +11,6 @@ class GroupManager(BaseManager):
         self._group_dis_user_url = self._group_url + "/disable_user.json"
         self._group_ena_user_url = self._group_url + "/enable_user.json"
         self._group_ren_url = self._group_url + "/rename.json"
-        raise NotImplementedError
 
     def group_info(self, group_key=None):
         """

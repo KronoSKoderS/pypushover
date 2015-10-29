@@ -33,24 +33,28 @@ class TestMessage(unittest.TestCase):
     def test_inv_msg(self):
         inv_pm = py_po.message.MessageManager(app_key)
         with self.assertRaises(ValueError):
-            inv_pm.push_message('Missin User Key')
+            inv_pm.push_message('Missing User Key')
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
             self.valid_pm.push_message('Emergency!', priority=py_po.PRIORITIES.EMERGENCY)
+        with self.assertRaises(TypeError):
             py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY)
 
         with self.assertRaises(TypeError):
             self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
-            py_po.message.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+        with self.assertRaises(TypeError):
+            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
 
         with self.assertRaises(TypeError):
             self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+        with self.assertRaises(TypeError):
             py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
 
         with self.assertRaises(ValueError):
             self.valid_pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
-            py_po.message.push_message(app_key, user_key, 'Invalid retry', expire=3600, retry=20)
+        with self.assertRaises(ValueError):
+            py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
         res = self.valid_pm.push_message("Emergency", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
@@ -129,12 +133,27 @@ class TestVerifcation(unittest.TestCase):
 
     def test_val_group(self):
         self.assertTrue(self.valid_pm.verify_group(group_key))
+        self.assertTrue(py_po.verification.verify_group(app_key, group_key))
+
+        self.assertTrue(self.valid_pm.verify_group(group_key, device='KronoDroid'))
+        self.assertTrue(py_po.verification.verify_group(app_key, group_key, device='KronoDroid'))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"
         with self.assertRaises(requests.HTTPError):
             self.valid_pm.verify_group(inv_group_key)
+        with self.assertRaises(requests.HTTPError):
+            py_po.verification.verify_group(app_key, inv_group_key)
 
+        with self.assertRaises(requests.HTTPError):
+            self.valid_pm.verify_user(inv_group_key)
+        with self.assertRaises(requests.HTTPError):
+            py_po.verification.verify_user(app_key, inv_group_key)
+
+        with self.assertRaises(requests.HTTPError):
+            self.valid_pm.verify_user(user_key, device='junk')
+        with self.assertRaises(requests.HTTPError):
+            py_po.verification.verify_user(app_key, user_key, device='junk')
 
 class TestSubscription(unittest.TestCase):
     def setUp(self):

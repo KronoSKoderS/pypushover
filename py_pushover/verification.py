@@ -3,9 +3,8 @@ from py_pushover import BaseManager, base_url
 
 class VerificationManager(BaseManager):
     def __init__(self, app_token):
-        super().__init__(app_token)
+        super(VerificationManager, self).__init__(app_token)
         self._validate_url = base_url + "/users/validate.json"
-        raise NotImplementedError
 
     def verify_user(self, user_id, device=None):
         """

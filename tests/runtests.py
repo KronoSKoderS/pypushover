@@ -161,6 +161,7 @@ class TestVerifcation(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             py_po.verification.verify_user(app_key, user_key, device='junk')
 
+
 class TestSubscription(unittest.TestCase):
     def setUp(self):
         raise NotImplementedError

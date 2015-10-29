@@ -1,18 +1,19 @@
-from py_pushover import BaseManager, base_url
+from py_pushover import BaseManager, base_url, send
 
+_group_url = base_url + "groups/{group_key}"
+_group_info_url = _group_url + ".json"
+_group_add_user_url = _group_url + "/add_user.json"
+_group_del_user_url = _group_url + "/delete_user.json"
+_group_dis_user_url = _group_url + "/disable_user.json"
+_group_ena_user_url = _group_url + "/enable_user.json"
+_group_ren_url = _group_url + "/rename.json"
 
 class GroupManager(BaseManager):
     def __init__(self, app_token, group_key):
         super(GroupManager, self).__init__(app_token, group_key=group_key)
-        self._group_url = base_url + "groups/{group_key}"
-        self._group_info_url = self._group_url + ".json"
-        self._group_add_user_url = self._group_url + "/add_user.json"
-        self._group_del_user_url = self._group_url + "/delete_user.json"
-        self._group_dis_user_url = self._group_url + "/disable_user.json"
-        self._group_ena_user_url = self._group_url + "/enable_user.json"
-        self._group_ren_url = self._group_url + "/rename.json"
 
-    def group_info(self, group_key=None):
+
+    def info(self):
         """
         Fetches the group name and a list of users subscribed to the group.
 
@@ -20,14 +21,8 @@ class GroupManager(BaseManager):
         classes group key is used.
         :return: A dictionary representing the json response.
         """
-        if group_key:
-            group = group_key
-        elif self._group_key:
-            group = self._group_key
-        else:
-            raise ValueError("A group key must be supplied")
 
-        self._send(self._group_info_url.format(group_key=group), get_method=True)
+        self.latest_response_dict = info(self._app_token, self._group_key)
         return self.latest_response_dict
 
     def group_add_user(self, user, group_key=None, device=None, memo=None):
@@ -140,3 +135,20 @@ class GroupManager(BaseManager):
 
         self._send(self._group_ren_url.format(group_key=group), param_data)
 
+def info(app_token, group):
+    return send(_group_info_url.format(group_key=group), params={'token':app_token}, get_method=True)
+
+def add_user(app_token, group, user):
+    raise NotImplementedError
+
+def remove_user(app_token, group, user):
+    raise NotImplementedError
+
+def disable_user(app_token, group, user):
+    raise NotImplementedError
+
+def enable_user(app_token, group, user):
+    raise NotImplementedError
+
+def rename(app_token, group, user)
+    raise NotImplementedError

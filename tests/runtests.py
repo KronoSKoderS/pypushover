@@ -19,8 +19,16 @@ class TestMessage(unittest.TestCase):
     def test_val_msg(self):
         self.valid_pm.push_message('Testing normal push (Manager method)')
         py_po.message.push_message(app_key, user_key, 'Testing normal message push (static function)')
+
         val_pm = py_po.message.MessageManager(app_key)
         val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key)
+
+        self.valid_pm.push_message("Valid message with 'device' param", device='KronoDroid')
+
+        self.valid_pm.push_message("Valid message with 'url', and 'url_title' params",
+            url="https://pushover.net/api#urls",
+            url_title="Pushover Api URLS"
+        )
 
     def test_inv_msg(self):
         inv_pm = py_po.message.MessageManager(app_key)
@@ -50,10 +58,24 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(self.valid_pm.check_receipt()['status'], 1)
         self.assertEqual(self.valid_pm.check_receipt(res['receipt'])['status'], 1)
         self.valid_pm.cancel_retries(res['receipt'])
+
+        self.valid_pm.push_message("Valid Emergency: Last response Cancel", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        self.valid_pm.cancel_retries()
+
         res = py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
         self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
         py_po.message.cancel_retries(app_key, res['receipt'])
+
+    def test_inv_check_msg(self):
+        self.valid_pm.push_message("Valid Message: no receipt")
+        with self.assertRaises(TypeError):
+            self.valid_pm.check_receipt()
+
+    def test_inv_cancel_retry(self):
+        self.valid_pm.push_message("Valid Message: no reciept")
+        with self.assertRaises(TypeError):
+            self.valid_pm.cancel_retries()
 
 
 class TestGroup(unittest.TestCase):

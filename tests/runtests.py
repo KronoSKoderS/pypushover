@@ -1,6 +1,8 @@
 import unittest
 import time
 import requests
+import datetime
+
 import py_pushover as py_po
 
 try:
@@ -29,6 +31,10 @@ class TestMessage(unittest.TestCase):
             url="https://pushover.net/api#urls",
             url_title="Pushover Api URLS"
         )
+
+        self.valid_pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now())
+
+        self.valid_pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE)
 
     def test_inv_msg(self):
         inv_pm = py_po.message.MessageManager(app_key)

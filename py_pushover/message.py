@@ -1,3 +1,5 @@
+import time
+
 from py_pushover import PRIORITIES, BaseManager, base_url, send
 
 _MAX_EXPIRE = 86400
@@ -95,7 +97,7 @@ def push_message(token, user, message, **kwargs):
                       only with priority level of Emergency)
     :param int expire: how many seconds your notification will continue to be retried (required only with priority
                        level of Emergency)
-    :param int timestamp: a Unix timestamp of your message's date and time to display to the user
+    :param datetime timestamp: a datetime object repr the timestamp of your message's date and time to display to the user
     :param str sound: the name of the sound to override the user's default sound choice (Use the Sounds consts to
                       select)
     """
@@ -152,7 +154,7 @@ def push_message(token, user, message, **kwargs):
             ret_receipt = True
 
     if 'timestamp' in kwargs:
-        data_out['timestamp'] = kwargs['timestamp']
+        data_out['timestamp'] = int(time.mktime(kwargs['timestamp'].timetuple()))
     if 'sound' in kwargs:
         data_out['sound'] = kwargs['sound']
 

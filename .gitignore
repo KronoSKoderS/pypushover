@@ -58,3 +58,4 @@ target/
 *.idea
 tests/helpers/keys.py
 .pypirc
+sandbox.py

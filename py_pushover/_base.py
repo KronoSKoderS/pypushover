@@ -21,9 +21,8 @@ class BaseManager(object):
 def send(url, data_out=None, get_method=False):
     if get_method:
         res = requests.get(url, params=data_out)
-        res.raise_for_status()
-        return res.json()
     else:
         res = requests.post(url, params=data_out)
-        res.raise_for_status()
-        return res.json()
+
+    res.raise_for_status()
+    return res.json()

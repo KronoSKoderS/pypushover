@@ -90,74 +90,73 @@ class TestMessage(unittest.TestCase):
 
 class TestGroup(unittest.TestCase):
     def setUp(self):
-        self.valid_pm = py_po.groups.GroupManager(app_key, group_key)
+        self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
 
     def test_group_info(self):
-        info = self.valid_pm.group_info()
+        info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
-
-        info = self.valid_pm.group_info(group_key=group_key)
+        info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
 
     def test_group_add_del_user(self):
-        self.valid_pm.group_remove_user(user_key)
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_remove_user(user_key)
+        info = self.valid_gm.info()
         self.assertEqual(len(info['users']), 0)
-        self.valid_pm.group_add_user(user_key, device='KronoDroid', memo='Added using UnitTests')
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_add_user(user_key, device='KronoDroid', memo='Added using UnitTests')
+        info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['device'], 'KronoDroid')
         self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
 
     def test_group_disable_enable_user(self):
-        self.valid_pm.group_disable_user(user_key)
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_disable_user(user_key)
+        info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], True)
-        self.valid_pm.group_enable_user(user_key)
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_enable_user(user_key)
+        info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], False)
 
     def test_group_rename(self):
-        self.valid_pm.group_rename('KronoGroup')
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_rename('KronoGroup')
+        info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoGroup')
-        self.valid_pm.group_rename('KronoTestGroup')
-        info = self.valid_pm.group_info()
+        self.valid_gm.group_rename('KronoTestGroup')
+        info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
 
 
 class TestVerifcation(unittest.TestCase):
     def setUp(self):
-        self.valid_pm = py_po.verification.VerificationManager(app_key)
+        self.valid_vm = py_po.verification.VerificationManager(app_key)
 
     def test_val_user(self):
-        self.assertTrue(self.valid_pm.verify_user(user_key))
+        self.assertTrue(self.valid_vm.verify_user(user_key))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
         with self.assertRaises(requests.HTTPError):
-            self.valid_pm.verify_user(inv_user_key)
+            self.valid_vm.verify_user(inv_user_key)
 
     def test_val_group(self):
-        self.assertTrue(self.valid_pm.verify_group(group_key))
+        self.assertTrue(self.valid_vm.verify_group(group_key))
         self.assertTrue(py_po.verification.verify_group(app_key, group_key))
 
-        self.assertTrue(self.valid_pm.verify_group(group_key, device='KronoDroid'))
+        self.assertTrue(self.valid_vm.verify_group(group_key, device='KronoDroid'))
         self.assertTrue(py_po.verification.verify_group(app_key, group_key, device='KronoDroid'))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"
         with self.assertRaises(requests.HTTPError):
-            self.valid_pm.verify_group(inv_group_key)
+            self.valid_vm.verify_group(inv_group_key)
         with self.assertRaises(requests.HTTPError):
             py_po.verification.verify_group(app_key, inv_group_key)
 
         with self.assertRaises(requests.HTTPError):
-            self.valid_pm.verify_user(inv_group_key)
+            self.valid_vm.verify_user(inv_group_key)
         with self.assertRaises(requests.HTTPError):
             py_po.verification.verify_user(app_key, inv_group_key)
 
         with self.assertRaises(requests.HTTPError):
-            self.valid_pm.verify_user(user_key, device='junk')
+            self.valid_vm.verify_user(user_key, device='junk')
         with self.assertRaises(requests.HTTPError):
             py_po.verification.verify_user(app_key, user_key, device='junk')
 

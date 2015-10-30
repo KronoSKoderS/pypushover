@@ -1,7 +1,6 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
   - "3.5"
@@ -12,4 +11,6 @@ install:
   - pip install -r requirements.txt
 # command to run tests
 script:
-  - python setup.py test
+  - coverage run --source=py_pushover setup.py test
+after_success:
+  coveralls

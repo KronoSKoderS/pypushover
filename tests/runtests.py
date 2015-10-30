@@ -43,19 +43,19 @@ class TestMessage(unittest.TestCase):
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency!', priority=py_po.PRIORITIES.EMERGENCY)
+            self.valid_pm.push_message('Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY)
+            py_po.message.push_message(app_key, user_key, 'Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            self.valid_pm.push_message('Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            py_po.message.push_message(app_key, user_key, 'Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            self.valid_pm.push_message('Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            py_po.message.push_message(app_key, user_key, 'Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
 
         with self.assertRaises(ValueError):
             self.valid_pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
@@ -63,7 +63,7 @@ class TestMessage(unittest.TestCase):
             py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
-        res = self.valid_pm.push_message("Emergency", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        res = self.valid_pm.push_message("Emergency: Valid", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
         self.assertEqual(self.valid_pm.check_receipt()['status'], 1)
         self.assertEqual(self.valid_pm.check_receipt(res['receipt'])['status'], 1)
@@ -72,7 +72,7 @@ class TestMessage(unittest.TestCase):
         self.valid_pm.push_message("Valid Emergency: Last response Cancel", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         self.valid_pm.cancel_retries()
 
-        res = py_po.message.push_message(app_key, user_key, 'Emergency', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        res = py_po.message.push_message(app_key, user_key, 'Emergency Valid', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
         self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
         py_po.message.cancel_retries(app_key, res['receipt'])

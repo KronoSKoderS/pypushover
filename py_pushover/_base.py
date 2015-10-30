@@ -17,26 +17,6 @@ class BaseManager(object):
         self._group_key = group_key
         self.latest_response_dict = None
 
-    def _send(self, url, data_out=None, get_method=False):
-        """
-        Sends a formatted request to the supplied url.  If data_out is present, then the data is encoded and sent as
-        well.  A check_response value of False the HTTP response code is checked.  A customized HTTPError is raised if
-        an error is detected.
-
-        :param string url: url of the site to send the request to (http://www.site.com)
-        :param dict data_out: data to be encoded with the url (?token=<app_token>&user=<user_id>)
-        :param bool check_response: check http response and raise exception if an error is detected
-        """
-        if not data_out:
-            data_out = {
-                'token': self._app_token
-            }
-        else:
-            data_out['token'] = self._app_token
-
-        self.latest_response_dict = send(url, data_out=data_out, get_method=get_method)
-        return self.latest_response_dict
-
 
 def send(url, data_out=None, get_method=False):
     if get_method:

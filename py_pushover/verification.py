@@ -25,7 +25,7 @@ class VerificationManager(BaseManager):
         :return :
         """
 
-        return verify_group(self._app_token, group_id, device=device)
+        return verify_group(self._app_token, group_id)
 
 
 def verify_user(app_token, user, device=None):

@@ -144,7 +144,7 @@ def push_message(token, user, message, **kwargs):
                 expire_val = kwargs['expire']
 
                 # 'expire' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if not(_MIN_RETRY < expire_val < _MAX_EXPIRE):
+                if not(_MIN_RETRY <= expire_val <= _MAX_EXPIRE):
                     raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
                         _MIN_RETRY, _MAX_EXPIRE
                     ))

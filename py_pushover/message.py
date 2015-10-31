@@ -144,7 +144,7 @@ def push_message(token, user, message, **kwargs):
                 expire_val = kwargs['expire']
 
                 # 'expire' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if not(_MIN_RETRY < expire_val < _MAX_EXPIRE):
+                if not(_MIN_RETRY <= expire_val <= _MAX_EXPIRE):
                     raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
                         _MIN_RETRY, _MAX_EXPIRE
                     ))
@@ -161,12 +161,26 @@ def push_message(token, user, message, **kwargs):
     return send(_push_url, data_out=data_out)
 
 
-def check_receipt(token, receipt, **kwargs):
+def check_receipt(token, receipt):
+    """
+    Check to see if an Emergency Priority notification has been acknowledged.
+
+    :param str token: the application token
+    :param str receipt: the message receipt
+    :return:
+    """
     url_to_send = _receipt_url.format(receipt=receipt)
     return send(url_to_send, data_out={'token': token}, get_method=True)
 
 
-def cancel_retries(token, receipt, **kwargs):
+def cancel_retries(token, receipt):
+    """
+    Ceases retrying to notify the user of an Emergency Priority notification.
+
+    Cancel an emergency-priority notification early.
+    :param str token: application token
+    :param str receipt: receipt of the message
+    """
     url_to_send = _cancel_receipt_url.format(receipt=receipt)
     return send(url_to_send, data_out={'token': token})
 

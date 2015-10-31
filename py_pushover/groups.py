@@ -10,6 +10,9 @@ _group_ren_url = _group_url + "/rename.json"
 
 
 class GroupManager(BaseManager):
+    """
+    Manages the calls the groups API for Pushover, without having to supply and app token and group key everytime.
+    """
     def __init__(self, app_token, group_key):
         super(GroupManager, self).__init__(app_token, group_key=group_key)
 

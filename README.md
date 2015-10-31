@@ -21,5 +21,4 @@ execute `pip install py-pushover`
 Basic Usage:
 -----------
     import py_pushover as py_po
-    pm = py_po.PushManager('<Token>', '<Group_Key>')
-    pm.push_notification('Message Body', title="Title")
+    py_po.message.push_message('<app token>', '<user key>', 'Hello World!')

@@ -56,4 +56,4 @@ def verify_group(app_token, group_id):
     :param device
     :return :
     """
-    return verify_group(app_token, group_id)
+    return verify_user(app_token, group_id)

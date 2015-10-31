@@ -6,35 +6,44 @@ import datetime
 import py_pushover as py_po
 
 try:
-    from tests.helpers.keys import user_key, group_key, app_key
+    from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
 except ImportError:  # support for Travis CI
     import os
     app_key = os.environ['app_key']
     group_key = os.environ['group_key']
     user_key = os.environ['user_key']
+    secret = os.environ['secret']
+    device_id = os.environ['device_id']
 
 
 class TestMessage(unittest.TestCase):
     def setUp(self):
-        self.valid_pm = py_po.message.MessageManager(app_key, user_key)
+        self.pm = py_po.message.MessageManager(app_key, user_key)
+        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.client.listen_async(self.handle_msg)
+        self.timeOut = False
+
+    def handle_msg(self, messages):
+        self.messages = messages
+        self.recv_msg = True
 
     def test_val_msg(self):
-        self.valid_pm.push_message('Testing normal push (Manager method)')
+        self.pm.push_message('Testing normal push (Manager method)', device='test_device')
         py_po.message.push_message(app_key, user_key, 'Testing normal message push (static function)')
 
         val_pm = py_po.message.MessageManager(app_key)
         val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key)
 
-        self.valid_pm.push_message("Valid message with 'device' param", device='KronoDroid')
+        self.pm.push_message("Valid message with 'device' param", device='KronoDroid')
 
-        self.valid_pm.push_message("Valid message with 'url', and 'url_title' params",
+        self.pm.push_message("Valid message with 'url', and 'url_title' params",
             url="https://pushover.net/api#urls",
             url_title="Pushover Api URLS"
         )
 
-        self.valid_pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now())
+        self.pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now())
 
-        self.valid_pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE)
+        self.pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE)
 
     def test_inv_msg(self):
         inv_pm = py_po.message.MessageManager(app_key)
@@ -43,34 +52,34 @@ class TestMessage(unittest.TestCase):
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
+            self.pm.push_message('Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
         with self.assertRaises(TypeError):
             py_po.message.push_message(app_key, user_key, 'Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            self.pm.push_message('Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
         with self.assertRaises(TypeError):
             py_po.message.push_message(app_key, user_key, 'Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
 
         with self.assertRaises(TypeError):
-            self.valid_pm.push_message('Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            self.pm.push_message('Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
         with self.assertRaises(TypeError):
             py_po.message.push_message(app_key, user_key, 'Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
 
         with self.assertRaises(ValueError):
-            self.valid_pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
+            self.pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
         with self.assertRaises(ValueError):
             py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
-        res = self.valid_pm.push_message("Emergency: Valid", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        res = self.pm.push_message("Emergency: Valid", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
-        self.assertEqual(self.valid_pm.check_receipt()['status'], 1)
-        self.assertEqual(self.valid_pm.check_receipt(res['receipt'])['status'], 1)
-        self.valid_pm.cancel_retries(res['receipt'])
+        self.assertEqual(self.pm.check_receipt()['status'], 1)
+        self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
+        self.pm.cancel_retries(res['receipt'])
 
-        self.valid_pm.push_message("Valid Emergency: Last response Cancel", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
-        self.valid_pm.cancel_retries()
+        self.pm.push_message("Valid Emergency: Last response Cancel", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        self.pm.cancel_retries()
 
         res = py_po.message.push_message(app_key, user_key, 'Emergency Valid', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
         time.sleep(0.5)
@@ -78,14 +87,14 @@ class TestMessage(unittest.TestCase):
         py_po.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
-        self.valid_pm.push_message("Valid Message: no receipt")
+        self.pm.push_message("Valid Message: no receipt")
         with self.assertRaises(TypeError):
-            self.valid_pm.check_receipt()
+            self.pm.check_receipt()
 
     def test_inv_cancel_retry(self):
-        self.valid_pm.push_message("Valid Message: no reciept")
+        self.pm.push_message("Valid Message: no reciept")
         with self.assertRaises(TypeError):
-            self.valid_pm.cancel_retries()
+            self.pm.cancel_retries()
 
 
 class TestGroup(unittest.TestCase):
@@ -173,7 +182,34 @@ class TestLicense(unittest.TestCase):
 
 class TestClient(unittest.TestCase):
     def setUp(self):
-        raise NotImplementedError
+        self.pm = py_po.message.MessageManager(app_key, user_key)
+        self.cm = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.cm.retrieve_message()
+        self.cm.clear_server_messages()
+
+    def test_rec_msg(self):
+        msg_to_snd = 'Simple Message Sent'
+        self.pm.push_message(msg_to_snd, device='test_device')
+        self.cm.retrieve_message()
+        self.assertEqual(msg_to_snd, self.cm.messages[0]['message'])
+
+    def test_ack_msg(self):
+        msg_to_snd = 'Emergency Message to Ack'
+        self.pm.push_message(
+            msg_to_snd,
+            device='test_device',
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=30
+        )
+        self.cm.retrieve_message()
+        msg = self.cm.messages[0]
+        self.assertEqual(msg['acked'], 0)
+        self.cm.acknowledge_message(msg['receipt'])
+        self.cm.retrieve_message()
+        self.assertEqual(msg['id'], self.cm.messages[0]['id'])
+        msg = self.cm.messages[0]
+        self.assertEqual(msg['acked'], 1)
 
 
 class TestBasic(unittest.TestCase):

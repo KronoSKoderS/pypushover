@@ -7,6 +7,61 @@ from py_pushover import BaseManager, send, base_url
 
 class ClientManager(BaseManager):
     """
+    Manages the interface between the Pushover Servers and user.  This can be instantiated with or without the user
+    secret and device id.  If no secret is provided, the user MUST login before interfacing with the Pushover servers.
+    If no device id is provided, the user MUST register this client as a device before interfacing with the Pushover
+    servers.
+
+    Creating a client:
+    ------------------
+
+    * From scratch:
+        >>> import py_pushover as py_po
+        >>> cm = py_po.client.ClientManager('<app token>')
+        >>> cm.login('user email', 'user pass')
+        >>> cm.register_device('device_name')
+
+    * Using the device and secret
+        >>> import py_pushover as py_po
+        >>> cm = py_po.client.ClientManager('<app token>', secret='<user secret>', device_id='<device id>')
+
+    Retrieving Messages:
+    --------------------
+
+        >>> cm.retrieve_message()
+        >>> for msg in cm.messages:
+        ...     print(msg['message'])
+
+    Clearing Messages from Pushover Server:
+    ---------------------------------------
+    Note: This only clears out the messages on Pushover's servers and not the local copy `cm.messages`
+
+        >>> cm.clear_server_messages()
+
+    Acknowledge an Emergency Message:
+    ---------------------------------
+
+        >>> cm.retrieve_message()
+        >>> for msg in cm.messages:
+        ...     print(msg['message'])
+        ...     if msg['priority'] == py_po.PRIORITIES.EMERGENCY:
+        ...         cm.acknowledge_message(msg['receipt'])
+
+    Listening Servers:
+    ------------------
+    You can call the `listen` or `listen_async` method to constantly listen and respond to messages.  Pass in a function
+     to these methods that accepts a single input for the received message(s).  Using the `listen` method is a Blocking
+     method that will continually run until interrupted either manually (Ctrl+c) or through and unrecoverable loss in
+     connection to the Pushover Servers.
+
+    * Blocking Listener:
+        >>> def print_msg(messages):
+        ...     for msg in messages:
+        ...         print(msg['message'])
+        >>> cm.listen(print_msg)
+
+    * Non-Blocking Listener:
+        >>> cm.listen_async(print_msg)
     """
     _login_url = base_url + "users/login.json"
     _register_device_url = base_url + "devices.json"
@@ -18,10 +73,9 @@ class ClientManager(BaseManager):
 
     def __init__(self, app_token, secret=None, device_id=None):
         """
-
-        :param app_token:
-        :param secret:
-        :param device_id:
+        :param str app_token: application id from Pushover API
+        :param str secret: (Optional) user secret given after validation of login
+        :param str device_id: (Optional) device id of this client
         :return:
         """
         super(ClientManager, self).__init__(app_token)

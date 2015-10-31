@@ -138,7 +138,8 @@ class TestVerifcation(unittest.TestCase):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
 
     def test_val_user(self):
-        self.assertTrue(self.valid_vm.verify_user(user_key))
+        self.assertTrue(self.valid_vm.verify_user(user_key, device='KronoDroid'))
+        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='KronoDroid'))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
@@ -149,8 +150,8 @@ class TestVerifcation(unittest.TestCase):
         self.assertTrue(self.valid_vm.verify_group(group_key))
         self.assertTrue(py_po.verification.verify_group(app_key, group_key))
 
-        self.assertTrue(self.valid_vm.verify_group(group_key, device='KronoDroid'))
-        self.assertTrue(py_po.verification.verify_group(app_key, group_key, device='KronoDroid'))
+        self.assertTrue(self.valid_vm.verify_group(group_key))
+        self.assertTrue(py_po.verification.verify_group(app_key, group_key))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"

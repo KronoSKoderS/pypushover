@@ -4,6 +4,88 @@ from multiprocessing import Process
 
 from py_pushover import BaseManager, send, base_url
 
+"""
+# client - Client Manager for the Pushover API
+
+This module defines classes and functions necessary to act as a Client to the Pushover servers.  For more details about
+the Pushover API for clients visit [their site](https://pushover.net/api/client)
+
+Creating a client:
+------------------
+
+For the first time, creating a client requires the following steps:
+
+1. Create an object of class type ClientManager and pass in your app token
+2. Have the user login to the Pushover service with their email and password
+3. Register your client service as a new device
+
+While doing these steps, you'll receive a 'secret' and 'device_id'.  These are return with the `ClientManager.login`
+and `ClientManager.register_device` methods.  They are also stored in the `secret` and `device_id` properties.  This
+secret and device id MUST be stored in a safe location if stored at all.
+
+Here is an example:
+
+    >>> import py_pushover as py_po
+    >>> cm = py_po.client.ClientManager('<app token>')
+    >>> secret = cm.login('user email', 'user pass')
+    >>> device_id = cm.register_device('device_name')
+
+If you already have a secret and device id, then you can pass those into the ClientManager upon creation:
+
+    >>> import py_pushover as py_po
+    >>> cm = py_po.client.ClientManager('<app token>', secret='<user secret>', device_id='<device id>')
+
+Retrieving Messages:
+--------------------
+Messages are retrived from the Pushover Server by using the `retrieve_message` method.  Once called, all messages
+stored on the Pushover servers are then stored into the `messages` property.  These messages are a list of
+dictionaries with items as [defined in the Pushover API](https://pushover.net/api/client#download).
+
+    >>> cm.retrieve_message()
+    >>> for msg in cm.messages:
+    ...     print(msg['message'])
+
+Clearing Messages from Pushover Server:
+---------------------------------------
+Messages stored on the Pushover Server should be cleared after being presented to the user.  This is done using the
+`clear_server_messages` method.  Note: This only clears out the messages on Pushover's servers and not the local
+copy stored in the objects `messages` property.
+
+    >>> cm.clear_server_messages()
+
+Acknowledge an Emergency Message:
+---------------------------------
+If an emergency priority message is received, the Pushover Server should be acknowledged of that receipt per [their
+API guidelines](https://pushover.net/api/client#p2).  Once the user has acknowledged the message, using the
+`acknowledge_message` method passing in the emergency messages `receipt`.
+
+    >>> cm.retrieve_message()
+    >>> for msg in cm.messages:
+    ...     print(msg['message'])
+    ...     if msg['priority'] == py_po.PRIORITIES.EMERGENCY:
+    ...         cm.acknowledge_message(msg['receipt'])
+
+Listening Servers:
+------------------
+You can call the `listen` or `listen_async` method to constantly listen and respond to messages.  Pass in a function
+to these methods that accepts a single input for the received message(s).
+
+Using the `listen` method is a Blocking method that will continually run until interrupted either manually (Ctrl+c)
+or through and unrecoverable loss in connection to the Pushover Servers.
+
+    >>> def print_msg(messages):
+    ...     for msg in messages:
+    ...         print(msg['message'])
+    >>> cm.listen(print_msg)
+
+Using the `listen_async` method is a non-blocking method that will continually run until interupted using the
+`stop_listening` method.
+
+    >>> cm.listen_async(print_msg)
+    >>> time.sleep(30)
+    >>> cm.stop_listening
+"""
+
 
 class ClientManager(BaseManager):
     """
@@ -11,57 +93,6 @@ class ClientManager(BaseManager):
     secret and device id.  If no secret is provided, the user MUST login before interfacing with the Pushover servers.
     If no device id is provided, the user MUST register this client as a device before interfacing with the Pushover
     servers.
-
-    Creating a client:
-    ------------------
-
-    * From scratch:
-        >>> import py_pushover as py_po
-        >>> cm = py_po.client.ClientManager('<app token>')
-        >>> cm.login('user email', 'user pass')
-        >>> cm.register_device('device_name')
-
-    * Using the device and secret
-        >>> import py_pushover as py_po
-        >>> cm = py_po.client.ClientManager('<app token>', secret='<user secret>', device_id='<device id>')
-
-    Retrieving Messages:
-    --------------------
-
-        >>> cm.retrieve_message()
-        >>> for msg in cm.messages:
-        ...     print(msg['message'])
-
-    Clearing Messages from Pushover Server:
-    ---------------------------------------
-    Note: This only clears out the messages on Pushover's servers and not the local copy `cm.messages`
-
-        >>> cm.clear_server_messages()
-
-    Acknowledge an Emergency Message:
-    ---------------------------------
-
-        >>> cm.retrieve_message()
-        >>> for msg in cm.messages:
-        ...     print(msg['message'])
-        ...     if msg['priority'] == py_po.PRIORITIES.EMERGENCY:
-        ...         cm.acknowledge_message(msg['receipt'])
-
-    Listening Servers:
-    ------------------
-    You can call the `listen` or `listen_async` method to constantly listen and respond to messages.  Pass in a function
-     to these methods that accepts a single input for the received message(s).  Using the `listen` method is a Blocking
-     method that will continually run until interrupted either manually (Ctrl+c) or through and unrecoverable loss in
-     connection to the Pushover Servers.
-
-    * Blocking Listener:
-        >>> def print_msg(messages):
-        ...     for msg in messages:
-        ...         print(msg['message'])
-        >>> cm.listen(print_msg)
-
-    * Non-Blocking Listener:
-        >>> cm.listen_async(print_msg)
     """
     _login_url = base_url + "users/login.json"
     _register_device_url = base_url + "devices.json"
@@ -107,8 +138,8 @@ class ClientManager(BaseManager):
         Logs into the Pushover server with the user's email and password.  Retrieves a secret key, stores it, and then
         returns it.
 
-        :param email:
-        :param password:
+        :param email: the users email
+        :param password: the users password
         :return:
         """
         params = {
@@ -203,9 +234,8 @@ class ClientManager(BaseManager):
 
     def _on_ws_open(self, ws):
         """
-
-        :param ws:
-        :return:
+        Function used when the websocket is opened for the first time.
+        :param ws: the websocket
         """
         self.__logger__.info("Opening connection to Pushover server...")
         ws.send(self._ws_login.format(device_id=self.__device_id__, secret=self.__secret__))
@@ -213,18 +243,21 @@ class ClientManager(BaseManager):
 
     def _on_ws_message(self, ws, message):
         """
-        # - Keep-alive packet, no response needed.
-        ! - A new message has arrived; you should perform a sync.
-        R - Reload request; you should drop your connection and re-connect.
-        E - Error; a permanent problem occured and you should not automatically re-connect. Prompt the user to login again or re-enable the device.
-        :param ws:
-        :param message:
-        :return:
+        Function used for when the websocket recieves a message.  Per the Pushover API guidelines 1 of 4 responses
+        will be sent:
+
+            1. `#` - Keep-alive packet, no response needed.
+            2. `!` - A new message has arrived; you should perform a sync.
+            3. `R` - Reload request; you should drop your connection and re-connect.
+            4. `E` - Error; a permanent problem occured and you should not automatically re-connect. Prompt the user to login again or re-enable the device.
+        :param ws: the websocket
+        :param message: message received from remote server
         """
         message = message.decode("utf-8")
         self.__logger__.debug("Message received: " + message)
         if message == "#":
             pass
+
         elif message == "!":
             self.retrieve_message()
             self.__on_msg_receipt__(self.messages)
@@ -238,22 +271,20 @@ class ClientManager(BaseManager):
             self.__logger__.error("Server connection failure!")
 
         else:  # message isn't of the type expected.  Raise an error.
-            raise NotImplementedError
+            raise NotImplementedError  #todo Implement an appropriate exception
 
     def _on_ws_error(self, ws, error):
         """
-
-        :param ws:
-        :param error:
-        :return:
+        Function used when the websocket encounters an error.  The error is logged
+        :param ws: the websocket
+        :param error: the error encountered
         """
         self.__logger__.error('Error: ' + error)
 
     def _on_ws_close(self, ws):
         """
-
-        :param ws:
-        :return:
+        Function used when the websocket closes the connection to the remote server.
+        :param ws: the websocket
         """
         self.__logger__.info("----Server Connection Closed----")
         self._ws_app = None

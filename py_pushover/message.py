@@ -2,6 +2,82 @@ import time
 
 from py_pushover import PRIORITIES, BaseManager, base_url, send
 
+"""
+# message - Message handling for the Pushover API
+
+This module defines functions and classes used for handling messages sent to the Pushover servers.  Messages can be sent
+using either the MessageManager class or calling the functions directly.  Using the MessageManager class reduces the
+need to send the app_token and group/user key for each sending of a message.
+
+Sending messages can be done using the `send_message` method of the `MessageManager` class or the `send_message`.  There
+are API [restrictions](https://pushover.net/api#limits) that are required by Pushover but are NOT handled by
+`py_pushover`. It is intended that the user will maintain all of these requirements.
+
+Sending Basic Messages
+----------------------
+
+## Using the `MessageManager` class:
+
+1. Create an object of the `MessageManager` class
+2. Call the `send_message` method
+
+    >>> pm = py_po.message.MessageManager('<app_token>', '<group/user key>')
+    >>> pm.send_message('Message Body')
+
+## Using the function call:
+
+    >>> py_po.message.send_message('<app_token>', '<group/user key>')
+
+Sending Emergency Priority Messages
+-----------------------------------
+
+Emergency Priority messages are messages that are intended to be read by the user immediately and required an
+acknowledgement for dismissal.  When passing in a `priority` of Emergency (`py_pushover.PRIORITIES.EMERGENCY`), two
+additional parameters are required:
+
+* `retry`
+* `expire`
+
+    >>> res = pm.send_message('Emergency Message!', priority=py_po.PRIORITES.EMERGENCY, retry=30, expire=3600)
+    >>> res = py_po.message.send_message(
+    ...     '<app_token>',
+    ...     '<group/user key>',
+    ...     'Emergency Message!',
+    ...     priority=py_po.PRIORITES.EMERGENCY,
+    ...     retry=30,
+    ...     expire=3600
+    ... )
+
+After an emergency message is sent, it's status can be queried using `check_receipt`.  The parameter passed in, is the
+emergency messages response receipt parameter.
+
+    >>> pm.check_receipt(res['receipt'])
+    >>> py_po.message.check_receipt('app_token', res['receipt'])
+
+If you decide to cancel Pushover's repeated tries to send an Emergency Priority message, use the `cancel_retries` with
+the `receipt` parameter passed in.
+
+    >>> pm.cancel_retries(res['receipt'])
+    >>> py_po.message.cancel_retries('app_token', res['receipt'])
+
+Other Supported Add'l Parameters
+--------------------------------
+* `user` (string): user or group id to send the message to
+* `title` (string): your message's title, otherwise your app's name is used
+* `device` (string): your user's device name to send the message directly to that device
+* `device` (list of strings): your user's devices names to send the message directly to that device
+* `url` (string): a supplementary URL to show with your message
+* `url_title` (string): a title for your supplementary URL, otherwise just the URL is shown
+* `priority` (string): message priority (Use the `Priorities` constants to select)
+* `retry` (string): how often (in seconds) the Pushover servers will retry the notification to the user (required only
+with priority level of Emergency)
+* `expire` (string): how many seconds your notification will continue to be retried (required only with priority level
+of Emergency)
+* `timestamp` (string): a Unix timestamp of your message's date and time to display to the user
+* `sound` (string): the name of the sound to override the user's default sound choice (Use the `Sounds` constants to
+select)
+"""
+
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
 

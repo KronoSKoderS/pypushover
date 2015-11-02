@@ -223,7 +223,7 @@ class ClientManager(BaseManager):
 
         :param on_msg_receipt: function to call when a message is received
         """
-        self.__parent_conn__, self.__child_conn__ = Pipe()
+        self.__child_conn__, self.__parent_conn__ = Pipe(False)
         self.__p__ = Process(target=self.listen, args=(on_msg_receipt,))
         self.__p__.start()
         return self.__child_conn__
@@ -258,7 +258,9 @@ class ClientManager(BaseManager):
             1. `#` - Keep-alive packet, no response needed.
             2. `!` - A new message has arrived; you should perform a sync.
             3. `R` - Reload request; you should drop your connection and re-connect.
-            4. `E` - Error; a permanent problem occured and you should not automatically re-connect. Prompt the user to login again or re-enable the device.
+            4. `E` - Error; a permanent problem occured and you should not automatically re-connect.
+                     Prompt the user to login again or re-enable the device.
+
         :param ws: the websocket
         :param message: message received from remote server
         """

@@ -1,9 +1,7 @@
-import time
-
-from py_pushover import PRIORITIES, BaseManager, base_url, send
-
 """
-# message - Message handling for the Pushover API
+===============================================
+message - Message handling for the Pushover API
+===============================================
 
 This module defines functions and classes used for handling messages sent to the Pushover servers.  Messages can be sent
 using either the MessageManager class or calling the functions directly.  Using the MessageManager class reduces the
@@ -19,14 +17,15 @@ Sending Basic Messages
 ## Using the `MessageManager` class:
 
 1. Create an object of the `MessageManager` class
-2. Call the `send_message` method
+2. Call the `send_message` method:
 
-    >>> pm = py_po.message.MessageManager('<app_token>', '<group/user key>')
-    >>> pm.send_message('Message Body')
+        >>> import py_pushover as py_po
+        >>> pm = py_po.message.MessageManager('<app_token>', '<group/user key>')
+        >>> pm.push_message('Message Body')
 
 ## Using the function call:
 
-    >>> py_po.message.send_message('<app_token>', '<group/user key>')
+    >>> py_po.message.push_message('<app_token>', '<group/user key>')
 
 Sending Emergency Priority Messages
 -----------------------------------
@@ -38,8 +37,10 @@ additional parameters are required:
 * `retry`
 * `expire`
 
-    >>> res = pm.send_message('Emergency Message!', priority=py_po.PRIORITES.EMERGENCY, retry=30, expire=3600)
-    >>> res = py_po.message.send_message(
+Below is an example:
+
+    >>> res = pm.send_message('Emergency Message!', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+    >>> res = py_po.message.push_message(
     ...     '<app_token>',
     ...     '<group/user key>',
     ...     'Emergency Message!',
@@ -77,6 +78,10 @@ of Emergency)
 * `sound` (string): the name of the sound to override the user's default sound choice (Use the `Sounds` constants to
 select)
 """
+import time
+
+from py_pushover import PRIORITIES, BaseManager, base_url, send
+
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30

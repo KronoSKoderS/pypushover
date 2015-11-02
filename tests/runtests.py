@@ -7,34 +7,53 @@ import py_pushover as py_po
 
 try:
     from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
+    keys = [user_key, group_key, app_key, secret, device_id]
+    if any([key == '' for key in keys]): raise ImportError  # Empty key try importing the environment var
 except ImportError:  # support for Travis CI
-    import os
-    app_key = os.environ['app_key']
-    group_key = os.environ['group_key']
-    user_key = os.environ['user_key']
-    secret = os.environ['secret']
-    device_id = os.environ['device_id']
-
+    try:
+        import os
+        app_key = os.environ['app_key']
+        group_key = os.environ['group_key']
+        user_key = os.environ['user_key']
+        secret = os.environ['secret']
+        device_id = os.environ['device_id']
+    except KeyError as e:
+        raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
 class TestMessage(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
-        self.client.listen_async(self.handle_msg)
-        self.timeOut = False
 
-    def handle_msg(self, messages):
-        self.messages = messages
-        self.recv_msg = True
+        # Clear messages and ensure there are none
+        self.client.clear_server_messages()
+        self.client.retrieve_message()
+        self.assertEquals(len(self.client.messages), 0)
+
+        self.stored_messages = None
+        self.client.listen_async(self.client_message_receieved)
+
+    def client_message_receieved(self, messages):
+        self.stored_messages = messages
 
     def test_val_msg(self):
-        self.pm.push_message('Testing normal push (Manager method)', device='test_device')
-        py_po.message.push_message(app_key, user_key, 'Testing normal message push (static function)')
+
+        # Testing a normal push message
+        send_message = 'Testing normal push'
+        self.pm.push_message(send_message, device='test_device')
+        self.assertEquals(send_message, self.stored_messages[0]['message'])
+
+        py_po.message.push_message(app_key, user_key, send_message)
+        self.assertEquals(send_message, self.stored_messages[1]['message'])
+
+        self.client.clear_server_messages()
+
+        # Testing normal push message with Title
 
         val_pm = py_po.message.MessageManager(app_key)
         val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key)
 
-        self.pm.push_message("Valid message with 'device' param", device='KronoDroid')
+        self.pm.push_message("Valid message with 'device' param", device='test_device')
 
         self.pm.push_message("Valid message with 'url', and 'url_title' params",
             url="https://pushover.net/api#urls",

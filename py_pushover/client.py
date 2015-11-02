@@ -1,11 +1,7 @@
-import websocket
-import logging
-from multiprocessing import Process
-
-from py_pushover import BaseManager, send, base_url
-
 """
-# client - Client Manager for the Pushover API
+============================================
+client - Client Manager for the Pushover API
+============================================
 
 This module defines classes and functions necessary to act as a Client to the Pushover servers.  For more details about
 the Pushover API for clients visit [their site](https://pushover.net/api/client)
@@ -37,7 +33,7 @@ If you already have a secret and device id, then you can pass those into the Cli
 
 Retrieving Messages:
 --------------------
-Messages are retrived from the Pushover Server by using the `retrieve_message` method.  Once called, all messages
+Messages are retrieved from the Pushover Server by using the `retrieve_message` method.  Once called, all messages
 stored on the Pushover servers are then stored into the `messages` property.  These messages are a list of
 dictionaries with items as [defined in the Pushover API](https://pushover.net/api/client#download).
 
@@ -78,13 +74,18 @@ or through and unrecoverable loss in connection to the Pushover Servers.
     ...         print(msg['message'])
     >>> cm.listen(print_msg)
 
-Using the `listen_async` method is a non-blocking method that will continually run until interupted using the
+Using the `listen_async` method is a non-blocking method that will continually run until interrupted using the
 `stop_listening` method.
 
     >>> cm.listen_async(print_msg)
     >>> time.sleep(30)
     >>> cm.stop_listening
 """
+import websocket
+import logging
+from multiprocessing import Process
+
+from py_pushover import BaseManager, send, base_url
 
 
 class ClientManager(BaseManager):
@@ -193,9 +194,9 @@ class ClientManager(BaseManager):
 
     def acknowledge_message(self, receipt):
         """
-        Sends an acknowlegement to the server that the message was read.
+        Sends an acknowledgement to the server that the message was read.
 
-        :param receipt: reciept of the message to ack
+        :param receipt: receipt of the message to ack
         """
         params = {
             'secret': self.__secret__
@@ -235,6 +236,7 @@ class ClientManager(BaseManager):
     def _on_ws_open(self, ws):
         """
         Function used when the websocket is opened for the first time.
+
         :param ws: the websocket
         """
         self.__logger__.info("Opening connection to Pushover server...")
@@ -276,6 +278,7 @@ class ClientManager(BaseManager):
     def _on_ws_error(self, ws, error):
         """
         Function used when the websocket encounters an error.  The error is logged
+
         :param ws: the websocket
         :param error: the error encountered
         """
@@ -284,6 +287,7 @@ class ClientManager(BaseManager):
     def _on_ws_close(self, ws):
         """
         Function used when the websocket closes the connection to the remote server.
+
         :param ws: the websocket
         """
         self.__logger__.info("----Server Connection Closed----")

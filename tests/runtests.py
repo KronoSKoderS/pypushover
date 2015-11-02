@@ -35,7 +35,7 @@ class TestMessage(unittest.TestCase):
     def cleanUpClient(self):
         self.client.retrieve_message()
         for msg in self.client.messages:
-            if msg['priority'] >= py_po.PRIORITIES.EMERGENCY:
+            if msg['priority'] >= py_po.PRIORITIES.EMERGENCY and msg['acked'] != 1:
                 self.client.acknowledge_message(msg['receipt'])
         self.client.clear_server_messages()
 

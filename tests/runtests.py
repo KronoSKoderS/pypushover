@@ -29,19 +29,18 @@ class TestMessage(unittest.TestCase):
         self.client.listen_async(self.client_message_receieved)
 
     def tearDown(self):
-        self.cleanUpClient()
         self.client.stop_listening()
+        self.cleanUpClient()
 
     def cleanUpClient(self):
-        messages = self.client.retrieve_message()
-        for msg in messages:
+        self.client.retrieve_message()
+        for msg in self.client.messages:
             if msg['priority'] >= py_po.PRIORITIES.EMERGENCY:
                 self.client.acknowledge_message(msg['receipt'])
         self.client.clear_server_messages()
 
         self.client.retrieve_message()
         self.assertEquals(len(self.client.messages), 0)
-
 
     def client_message_receieved(self, messages):
         self.stored_messages = messages

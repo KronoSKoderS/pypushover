@@ -24,38 +24,38 @@ except ImportError:  # support for Travis CI
 class TestMessage(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        # self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
-        # self.cleanUpClient()
-        # self.client.listen_async(self.client_message_receieved)
+        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.cleanUpClient()
+        self.receiver = self.client.listen_async(self.client_message_receieved)
 
-    # def tearDown(self):
-    #     self.client.stop_listening()
-    #     self.cleanUpClient()
+    def tearDown(self):
+        self.client.stop_listening()
+        self.cleanUpClient()
 
-    # def cleanUpClient(self):
-    #     self.client.retrieve_message()
-    #     for msg in self.client.messages:
-    #         if msg['priority'] >= py_po.PRIORITIES.EMERGENCY:
-    #             self.client.acknowledge_message(msg['receipt'])
-    #     self.client.clear_server_messages()
-    #
-    #     self.client.retrieve_message()
-    #     self.assertEquals(len(self.client.messages), 0)
+    def cleanUpClient(self):
+        self.client.retrieve_message()
+        for msg in self.client.messages:
+            if msg['priority'] >= py_po.PRIORITIES.EMERGENCY:
+                self.client.acknowledge_message(msg['receipt'])
+        self.client.clear_server_messages()
+
+        self.client.retrieve_message()
+        self.assertEquals(len(self.client.messages), 0)
 
     def client_message_receieved(self, messages):
-        self.stored_messages = messages
+        self.stored_messages = self.receiver.recv()
 
     def test_val_msg(self):
 
         # Testing a normal push message
         send_message = 'Testing normal push'
         self.pm.push_message(send_message, device='test_device')
-        #self.assertEquals(send_message, self.stored_messages[0]['message'])
+        self.assertEquals(send_message, self.stored_messages[0]['message'])
 
         py_po.message.push_message(app_key, user_key, send_message)
-        #self.assertEquals(send_message, self.stored_messages[1]['message'])
+        self.assertEquals(send_message, self.stored_messages[1]['message'])
 
-        #self.client.clear_server_messages()
+        self.client.clear_server_messages()
 
         # Testing normal push message with Title
 

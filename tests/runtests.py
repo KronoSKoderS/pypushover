@@ -26,7 +26,7 @@ class TestMessage(unittest.TestCase):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
         self.cleanUpClient()
-        self.receiver = self.client.listen_async(self.client_message_receieved)
+        self.client.listen_async(self.client_message_receieved)
 
     def tearDown(self):
         self.client.stop_listening()
@@ -43,7 +43,7 @@ class TestMessage(unittest.TestCase):
         self.assertEquals(len(self.client.messages), 0)
 
     def client_message_receieved(self, messages):
-        self.stored_messages = self.receiver.recv()
+        self.stored_messages = messages
 
     def test_val_msg(self):
 

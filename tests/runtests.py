@@ -33,6 +33,14 @@ class TestMessage(unittest.TestCase):
         self.stored_messages = None
         self.client.listen_async(self.client_message_receieved)
 
+    def tearDown(self):
+        messages = self.client.retrieve_message()
+        for msg in messages:
+            if msg['priority'] >= py_po.PRIORITIES.EMERGENCY:
+                self.client.acknowledge_message(msg['receipt'])
+        self.client.clear_server_messages()
+        self.client.stop_listening()
+
     def client_message_receieved(self, messages):
         self.stored_messages = messages
 
@@ -91,16 +99,35 @@ class TestMessage(unittest.TestCase):
             py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
-        res = self.pm.push_message("Emergency: Valid", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
-        time.sleep(0.5)
+        res = self.pm.push_message(
+            "Emergency: Valid",
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
         self.assertEqual(self.pm.check_receipt()['status'], 1)
         self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
         self.pm.cancel_retries(res['receipt'])
 
-        self.pm.push_message("Valid Emergency: Last response Cancel", priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        self.pm.push_message(
+            "Valid Emergency: Last response Cancel",
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
         self.pm.cancel_retries()
 
-        res = py_po.message.push_message(app_key, user_key, 'Emergency Valid', priority=py_po.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+        res = py_po.message.push_message(
+            app_key,
+            user_key,
+            'Emergency Valid',
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
         time.sleep(0.5)
         self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
         py_po.message.cancel_retries(app_key, res['receipt'])

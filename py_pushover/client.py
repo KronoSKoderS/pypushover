@@ -83,7 +83,7 @@ Using the `listen_async` method is a non-blocking method that will continually r
 """
 import websocket
 import logging
-from multiprocessing import Process
+from multiprocessing import Process, Pipe
 
 from py_pushover import BaseManager, send, base_url
 
@@ -123,6 +123,7 @@ class ClientManager(BaseManager):
         )
         self.__on_msg_receipt__ = None
         self.__p__ = None
+        self.__pipe_send__, self.__pipe_recv__ = Pipe()
 
         self.__logger__ = logging.basicConfig(filename='client.log')
 
@@ -224,6 +225,7 @@ class ClientManager(BaseManager):
         """
         self.__p__ = Process(target=self.listen, args=(on_msg_receipt,))
         self.__p__.start()
+        return self.__pipe_recv__
 
     def stop_listening(self):
         """
@@ -262,7 +264,9 @@ class ClientManager(BaseManager):
 
         elif message == "!":
             self.retrieve_message()
-            self.__on_msg_receipt__(self.messages)
+            self.__pipe_send__.send(self.messages)
+            if self.__on_msg_receipt__:
+                self.__on_msg_receipt__(self.messages)
 
         elif message == "R":
             self.__logger__.info("Reconnecting to server (requested from server)...")

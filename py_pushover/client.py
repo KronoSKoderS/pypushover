@@ -122,8 +122,8 @@ class ClientManager(BaseManager):
             on_close=self._on_ws_close
         )
         self.__on_msg_receipt__ = None
-        self.__p__ = None
-        self.__pipe_send__, self.__pipe_recv__ = Pipe()
+        self.__p__ = Process()
+        self.__parent_conn__, self.__child_conn__ = Pipe()
 
         self.__logger__ = logging.basicConfig(filename='client.log')
 
@@ -223,9 +223,10 @@ class ClientManager(BaseManager):
 
         :param on_msg_receipt: function to call when a message is received
         """
+        self.__parent_conn__, self.__child_conn__ = Pipe()
         self.__p__ = Process(target=self.listen, args=(on_msg_receipt,))
         self.__p__.start()
-        return self.__pipe_recv__
+        return self.__child_conn__
 
     def stop_listening(self):
         """
@@ -234,6 +235,10 @@ class ClientManager(BaseManager):
         if self.__p__:
             self.__p__.terminate()
             self.__p__ = None
+
+        if self.__parent_conn__:
+            self.__parent_conn__.close()
+            self.__parent_conn__ = None
 
     def _on_ws_open(self, ws):
         """
@@ -264,9 +269,10 @@ class ClientManager(BaseManager):
 
         elif message == "!":
             self.retrieve_message()
-            self.__pipe_send__.send(self.messages)
             if self.__on_msg_receipt__:
                 self.__on_msg_receipt__(self.messages)
+
+            self.__parent_conn__.send(self.messages)
 
         elif message == "R":
             self.__logger__.info("Reconnecting to server (requested from server)...")

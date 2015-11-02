@@ -21,12 +21,16 @@ except ImportError:  # support for Travis CI
         raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
 
+def wait_for_resp():
+    pass
+
+
 class TestMessage(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
         self.cleanUpClient()
-        self.client.listen_async(self.client_message_receieved)
+        self.conn = self.client.listen_async(self.client_message_receieved)
 
     def tearDown(self):
         self.client.stop_listening()
@@ -50,6 +54,9 @@ class TestMessage(unittest.TestCase):
         # Testing a normal push message
         send_message = 'Testing normal push'
         self.pm.push_message(send_message, device='test_device')
+
+        self.conn.recv()
+
         self.assertEquals(send_message, self.stored_messages[0]['message'])
 
         py_po.message.push_message(app_key, user_key, send_message)

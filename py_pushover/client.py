@@ -123,7 +123,7 @@ class ClientManager(BaseManager):
         )
         self.__on_msg_receipt__ = None
         self.__p__ = Process()
-        self.__parent_conn__, self.__child_conn__ = Pipe()
+        self.__parent_conn__, self.__child_conn__ = Pipe(False)
 
         self.__logger__ = logging.basicConfig(filename='client.log')
 

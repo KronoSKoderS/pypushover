@@ -7,7 +7,7 @@ class BaseManager(object):
 
     def __init__(self, app_token, user_key=None, group_key=None):
         """
-        Base class for the Push Over API
+        Base class for the Pushover API
         :param string app_token: Application token generated from PushOver site
         :param string user_key: User key generated from PushOver site
         :param string group_key: Group key generated from PushOver site

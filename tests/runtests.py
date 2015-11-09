@@ -21,19 +21,15 @@ except ImportError:  # support for Travis CI
         raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
 
-def wait_for_resp():
-    pass
-
-
 class TestMessage(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
         self.cleanUpClient()
-        self.conn = self.client.listen_async(self.client_message_receieved)
+        # self.client.listen_async(self.client_message_receieved)
 
     def tearDown(self):
-        self.client.stop_listening()
+        # self.client.stop_listening()
         self.cleanUpClient()
 
     def cleanUpClient(self):
@@ -54,31 +50,34 @@ class TestMessage(unittest.TestCase):
         # Testing a normal push message
         send_message = 'Testing normal push'
         self.pm.push_message(send_message, device='test_device')
+        self.client.retrieve_message()
 
-        self.conn.recv()
+        self.assertEquals(send_message, self.client.messages[0]['message'])
 
-        self.assertEquals(send_message, self.stored_messages[0]['message'])
+        py_po.message.push_message(app_key, user_key, send_message, device='test_device')
+        self.client.retrieve_message()
 
-        py_po.message.push_message(app_key, user_key, send_message)
-        self.assertEquals(send_message, self.stored_messages[1]['message'])
+        self.assertEquals(send_message, self.client.messages[1]['message'])
 
         self.client.clear_server_messages()
 
         # Testing normal push message with Title
 
         val_pm = py_po.message.MessageManager(app_key)
-        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key)
+        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device_id='test_device')
+
 
         self.pm.push_message("Valid message with 'device' param", device='test_device')
 
         self.pm.push_message("Valid message with 'url', and 'url_title' params",
             url="https://pushover.net/api#urls",
-            url_title="Pushover Api URLS"
+            url_title="Pushover Api URLS",
+            device='test_device'
         )
 
-        self.pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now())
+        self.pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now(), device='test_device')
 
-        self.pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE)
+        self.pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE, device='test_device')
 
     def test_inv_msg(self):
         inv_pm = py_po.message.MessageManager(app_key)

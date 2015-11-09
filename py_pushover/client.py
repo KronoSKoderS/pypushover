@@ -123,7 +123,6 @@ class ClientManager(BaseManager):
         )
         self.__on_msg_receipt__ = None
         self.__p__ = Process()
-        self.__parent_conn__, self.__child_conn__ = Pipe(False)
 
         self.__logger__ = logging.basicConfig(filename='client.log')
 
@@ -223,10 +222,8 @@ class ClientManager(BaseManager):
 
         :param on_msg_receipt: function to call when a message is received
         """
-        self.__child_conn__, self.__parent_conn__ = Pipe(False)
         self.__p__ = Process(target=self.listen, args=(on_msg_receipt,))
         self.__p__.start()
-        return self.__child_conn__
 
     def stop_listening(self):
         """
@@ -235,10 +232,6 @@ class ClientManager(BaseManager):
         if self.__p__:
             self.__p__.terminate()
             self.__p__ = None
-
-        if self.__parent_conn__:
-            self.__parent_conn__.close()
-            self.__parent_conn__ = None
 
     def _on_ws_open(self, ws):
         """

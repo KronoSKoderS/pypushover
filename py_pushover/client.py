@@ -87,6 +87,7 @@ from multiprocessing import Process, Pipe
 
 from py_pushover import BaseManager, send, base_url
 
+logging.basicConfig(filename='client.log', level=logging.INFO)
 
 class ClientManager(BaseManager):
     """
@@ -123,8 +124,6 @@ class ClientManager(BaseManager):
         )
         self.__on_msg_receipt__ = None
         self.__p__ = Process()
-
-        self.__logger__ = logging.basicConfig(filename='client.log')
 
     @property
     def secret(self):
@@ -239,9 +238,9 @@ class ClientManager(BaseManager):
 
         :param ws: the websocket
         """
-        self.__logger__.info("Opening connection to Pushover server...")
+        logging.info("Opening connection to Pushover server...")
         ws.send(self._ws_login.format(device_id=self.__device_id__, secret=self.__secret__))
-        self.__logger__.info("----Server Connection Established----")
+        logging.info("----Server Connection Established----")
 
     def _on_ws_message(self, ws, message):
         """
@@ -258,7 +257,7 @@ class ClientManager(BaseManager):
         :param message: message received from remote server
         """
         message = message.decode("utf-8")
-        self.__logger__.debug("Message received: " + message)
+        logging.debug("Message received: " + message)
         if message == "#":
             pass
 
@@ -267,15 +266,13 @@ class ClientManager(BaseManager):
             if self.__on_msg_receipt__:
                 self.__on_msg_receipt__(self.messages)
 
-            self.__parent_conn__.send(self.messages)
-
         elif message == "R":
-            self.__logger__.info("Reconnecting to server (requested from server)...")
+            logging.info("Reconnecting to server (requested from server)...")
             ws.close()
             self.listen(self.__on_msg_receipt__)
 
         elif message == "E":
-            self.__logger__.error("Server connection failure!")
+            logging.error("Server connection failure!")
 
         else:  # message isn't of the type expected.  Raise an error.
             raise NotImplementedError  #todo Implement an appropriate exception
@@ -287,7 +284,7 @@ class ClientManager(BaseManager):
         :param ws: the websocket
         :param error: the error encountered
         """
-        self.__logger__.error('Error: ' + error)
+        logging.error('Error: ' + error)
 
     def _on_ws_close(self, ws):
         """
@@ -295,6 +292,6 @@ class ClientManager(BaseManager):
 
         :param ws: the websocket
         """
-        self.__logger__.info("----Server Connection Closed----")
+        logging.info("----Server Connection Closed----")
         self._ws_app = None
 

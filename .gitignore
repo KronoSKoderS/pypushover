@@ -59,3 +59,4 @@ target/
 tests/helpers/keys.py
 .pypirc
 sandbox.py
+*.backup

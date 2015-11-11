@@ -98,8 +98,6 @@ class MessageManager(BaseManager):
 
     def push_message(self, message, **kwargs):
 
-        ret_receipt = False
-
         # determine if client key has already been saved.  If not then get argument.  Group key takes priority
         client_key = self._group_key if self._group_key else self._user_key
         if 'user' in kwargs:
@@ -161,10 +159,12 @@ class MessageManager(BaseManager):
         return self.latest_response_dict
 
 
+# noinspection PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring
 def push_message(token, user, message, **kwargs):
     """
     Send message to selected user/group/device.
 
+    :param kwargs:
     :param str token: application token
     :param str user: user or group id to send the message to
     :param str message: your message
@@ -231,8 +231,6 @@ def push_message(token, user, message, **kwargs):
                     ))
 
                 data_out['expire'] = expire_val
-
-            ret_receipt = True
 
     if 'timestamp' in kwargs:
         data_out['timestamp'] = int(time.mktime(kwargs['timestamp'].timetuple()))

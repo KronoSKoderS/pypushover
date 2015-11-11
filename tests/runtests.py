@@ -244,6 +244,9 @@ class TestClient(unittest.TestCase):
         self.cm.retrieve_message()
         self.cm.clear_server_messages()
 
+    def tearDown(self):
+        self.cm.stop_listening()
+
     def test_rec_msg(self):
         msg_to_snd = 'Simple Message Sent'
         self.pm.push_message(msg_to_snd, device='test_device')
@@ -267,6 +270,18 @@ class TestClient(unittest.TestCase):
         self.assertEqual(msg['id'], self.cm.messages[0]['id'])
         msg = self.cm.messages[0]
         self.assertEqual(msg['acked'], 1)
+
+    @staticmethod
+    def callback(messages):
+        test_msg = "This is a test"
+        assert(test_msg == messages[0]['message'])
+        cm = py_po.client.ClientManager(app_key, secret, device_id)
+        cm.clear_server_messages()
+
+    def test_listen(self):
+        test_msg = "This is a test"
+        self.cm.listen_async(TestClient.callback)
+        self.pm.push_message(test_msg)
 
 
 class TestBasic(unittest.TestCase):

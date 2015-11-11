@@ -1,7 +1,7 @@
 from py_pushover import BaseManager, send, base_url
 
-
 _assign_url = base_url + "licenses/assign.json"
+
 
 class LicenseManager(BaseManager):
     def __init__(self, app_token, user_key=None, email=None):

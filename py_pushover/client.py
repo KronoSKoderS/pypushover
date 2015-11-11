@@ -89,6 +89,7 @@ from py_pushover import BaseManager, send, base_url
 
 logging.basicConfig(filename='client.log', level=logging.INFO)
 
+
 class ClientManager(BaseManager):
     """
     Manages the interface between the Pushover Servers and user.  This can be instantiated with or without the user

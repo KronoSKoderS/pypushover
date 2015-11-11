@@ -6,6 +6,17 @@ Object Oriented Python bindings to the [Pushover API](https://pushover.net/api).
 
 # Instatllation
 
+## Requirements
+
+* [requests](http://docs.python-requests.org/en/latest/)
+* [websocket-client](https://github.com/liris/websocket-client)
+
+## PyPi
+
+Just run the following:
+
+    pip install py_pushover
+
 ## Manual Installation
 
 1. Download the source code from Github

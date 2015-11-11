@@ -167,9 +167,9 @@ class TestGroup(unittest.TestCase):
         self.valid_gm.remove_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(len(info['users']), 0)
-        self.valid_gm.add_user(user_key, device='KronoDroid', memo='Added using UnitTests')
+        self.valid_gm.add_user(user_key, device='test_device', memo='Added using UnitTests')
         info = self.valid_gm.info()
-        self.assertEqual(info['users'][0]['device'], 'KronoDroid')
+        self.assertEqual(info['users'][0]['device'], 'test_device')
         self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
 
     def test_group_disable_enable_user(self):
@@ -194,8 +194,8 @@ class TestVerifcation(unittest.TestCase):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
 
     def test_val_user(self):
-        self.assertTrue(self.valid_vm.verify_user(user_key, device='KronoDroid'))
-        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='KronoDroid'))
+        self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
+        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='test_device'))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"

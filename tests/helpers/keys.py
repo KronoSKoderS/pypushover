@@ -1,3 +1,5 @@
-
-user_key = '<ENTER USER KEY>'
-group_key = '<ENTER GROUP KEY>'
+user_key = ''
+app_key = ''
+group_key = ''
+secret = ''
+device_id = ''

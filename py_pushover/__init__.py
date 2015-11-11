@@ -5,3 +5,4 @@ from py_pushover import client, groups, license, message, subscription, verifica
 
 __all__ = ['PRIORITIES', 'SOUNDS', 'OS', 'client', 'groups', 'license', 'message', 'subscription', 'verification']
 
+

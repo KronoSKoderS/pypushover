@@ -83,10 +83,11 @@ Using the `listen_async` method is a non-blocking method that will continually r
 """
 import websocket
 import logging
-from multiprocessing import Process
+from multiprocessing import Process, Pipe
 
 from py_pushover import BaseManager, send, base_url
 
+logging.basicConfig(filename='client.log', level=logging.INFO)
 
 class ClientManager(BaseManager):
     """
@@ -122,9 +123,7 @@ class ClientManager(BaseManager):
             on_close=self._on_ws_close
         )
         self.__on_msg_receipt__ = None
-        self.__p__ = None
-
-        self.__logger__ = logging.basicConfig(filename='client.log')
+        self.__p__ = Process()
 
     @property
     def secret(self):
@@ -239,9 +238,9 @@ class ClientManager(BaseManager):
 
         :param ws: the websocket
         """
-        self.__logger__.info("Opening connection to Pushover server...")
+        logging.info("Opening connection to Pushover server...")
         ws.send(self._ws_login.format(device_id=self.__device_id__, secret=self.__secret__))
-        self.__logger__.info("----Server Connection Established----")
+        logging.info("----Server Connection Established----")
 
     def _on_ws_message(self, ws, message):
         """
@@ -251,26 +250,29 @@ class ClientManager(BaseManager):
             1. `#` - Keep-alive packet, no response needed.
             2. `!` - A new message has arrived; you should perform a sync.
             3. `R` - Reload request; you should drop your connection and re-connect.
-            4. `E` - Error; a permanent problem occured and you should not automatically re-connect. Prompt the user to login again or re-enable the device.
+            4. `E` - Error; a permanent problem occured and you should not automatically re-connect.
+                     Prompt the user to login again or re-enable the device.
+
         :param ws: the websocket
         :param message: message received from remote server
         """
         message = message.decode("utf-8")
-        self.__logger__.debug("Message received: " + message)
+        logging.debug("Message received: " + message)
         if message == "#":
             pass
 
         elif message == "!":
             self.retrieve_message()
-            self.__on_msg_receipt__(self.messages)
+            if self.__on_msg_receipt__:
+                self.__on_msg_receipt__(self.messages)
 
         elif message == "R":
-            self.__logger__.info("Reconnecting to server (requested from server)...")
+            logging.info("Reconnecting to server (requested from server)...")
             ws.close()
             self.listen(self.__on_msg_receipt__)
 
         elif message == "E":
-            self.__logger__.error("Server connection failure!")
+            logging.error("Server connection failure!")
 
         else:  # message isn't of the type expected.  Raise an error.
             raise NotImplementedError  #todo Implement an appropriate exception
@@ -282,7 +284,7 @@ class ClientManager(BaseManager):
         :param ws: the websocket
         :param error: the error encountered
         """
-        self.__logger__.error('Error: ' + error)
+        logging.error('Error: ' + error)
 
     def _on_ws_close(self, ws):
         """
@@ -290,6 +292,6 @@ class ClientManager(BaseManager):
 
         :param ws: the websocket
         """
-        self.__logger__.info("----Server Connection Closed----")
+        logging.info("----Server Connection Closed----")
         self._ws_app = None
 

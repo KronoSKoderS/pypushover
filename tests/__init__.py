@@ -6,14 +6,12 @@ def get_tests():
 
 
 def full_suite():
-    from .runtests import TestBasic, TestClient, TestGroup, TestLicense, TestMessage, TestSubscription, TestVerifcation
+    from .runtests import TestBasic, TestClient, TestGroup, TestLicense, TestMessage, TestVerifcation
 
     return unittest.TestSuite([
         unittest.TestLoader().loadTestsFromTestCase(TestBasic),
         unittest.TestLoader().loadTestsFromTestCase(TestClient),
         unittest.TestLoader().loadTestsFromTestCase(TestGroup),
-        #unittest.TestLoader().loadTestsFromTestCase(TestLicense),
         unittest.TestLoader().loadTestsFromTestCase(TestMessage),
-        #unittest.TestLoader().loadTestsFromTestCase(TestSubscription),
         unittest.TestLoader().loadTestsFromTestCase(TestVerifcation)
     ])

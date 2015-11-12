@@ -159,12 +159,10 @@ class MessageManager(BaseManager):
         return self.latest_response_dict
 
 
-# noinspection PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring,PyIncorrectDocstring
 def push_message(token, user, message, **kwargs):
     """
     Send message to selected user/group/device.
 
-    :param kwargs:
     :param str token: application token
     :param str user: user or group id to send the message to
     :param str message: your message
@@ -181,6 +179,7 @@ def push_message(token, user, message, **kwargs):
     :param datetime timestamp: a datetime object repr the timestamp of your message's date and time to display to the user
     :param str sound: the name of the sound to override the user's default sound choice (Use the Sounds consts to
                       select)
+    :param bool html: Enable rendering message on user device using HTML
     """
     data_out = {
         'token': token,
@@ -232,10 +231,16 @@ def push_message(token, user, message, **kwargs):
 
                 data_out['expire'] = expire_val
 
+            # Optionally a callback url may be supplied for the Emergency Message
+            if 'callback' in kwargs:
+                data_out['callback'] = kwargs['callback']
+
     if 'timestamp' in kwargs:
         data_out['timestamp'] = int(time.mktime(kwargs['timestamp'].timetuple()))
     if 'sound' in kwargs:
         data_out['sound'] = kwargs['sound']
+    if 'html' in kwargs:
+        data_out['html'] = int(kwargs['html'])
 
     return send(_push_url, data_out=data_out)
 

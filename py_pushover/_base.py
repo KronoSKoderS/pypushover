@@ -34,4 +34,13 @@ def send(url, data_out=None, get_method=False):
         res = requests.post(url, params=data_out)
 
     res.raise_for_status()
-    return res.json()
+
+    ret_dict = res.json()
+    if 'X-Limit-App-Limit' in res.headers:
+        ret_dict['app_limit'] = res.headers['X-Limit-App-Limit']
+    if 'X-Limit-App-Remaining' in res.headers:
+        ret_dict['app_remaining'] = res.headers['X-Limit-App-Remaining']
+    if 'X-Limit-App-Reset' in res.headers:
+        ret_dict['app_reset'] = res.headers['X-Limit-App-Reset']
+
+    return ret_dict

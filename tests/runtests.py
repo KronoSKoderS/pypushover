@@ -157,31 +157,34 @@ class TestGroup(unittest.TestCase):
     def test_group_info(self):
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
-        info = self.valid_gm.info()
+        info = py_po.groups.info(app_key, group_key)
         self.assertEqual(info['name'], 'KronoTestGroup')
 
+        self.assertEquals(self.valid_gm.group.name, 'KronoTestGroup')
+        self.assertEquals(self.valid_gm.group.users[0].device, 'test_device')
+
     def test_group_add_del_user(self):
-        self.valid_gm.group_remove_user(user_key)
+        self.valid_gm.remove_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(len(info['users']), 0)
-        self.valid_gm.group_add_user(user_key, device='KronoDroid', memo='Added using UnitTests')
+        self.valid_gm.add_user(user_key, device='test_device', memo='Added using UnitTests')
         info = self.valid_gm.info()
-        self.assertEqual(info['users'][0]['device'], 'KronoDroid')
+        self.assertEqual(info['users'][0]['device'], 'test_device')
         self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
 
     def test_group_disable_enable_user(self):
-        self.valid_gm.group_disable_user(user_key)
+        self.valid_gm.disable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], True)
-        self.valid_gm.group_enable_user(user_key)
+        self.valid_gm.enable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], False)
 
     def test_group_rename(self):
-        self.valid_gm.group_rename('KronoGroup')
+        self.valid_gm.rename('KronoGroup')
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoGroup')
-        self.valid_gm.group_rename('KronoTestGroup')
+        self.valid_gm.rename('KronoTestGroup')
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
 
@@ -191,8 +194,8 @@ class TestVerifcation(unittest.TestCase):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
 
     def test_val_user(self):
-        self.assertTrue(self.valid_vm.verify_user(user_key, device='KronoDroid'))
-        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='KronoDroid'))
+        self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
+        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='test_device'))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
@@ -224,11 +227,6 @@ class TestVerifcation(unittest.TestCase):
             py_po.verification.verify_user(app_key, user_key, device='junk')
 
 
-class TestSubscription(unittest.TestCase):
-    def setUp(self):
-        raise NotImplementedError
-
-
 class TestLicense(unittest.TestCase):
     def setUp(self):
         raise NotImplementedError
@@ -240,6 +238,9 @@ class TestClient(unittest.TestCase):
         self.cm = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
         self.cm.retrieve_message()
         self.cm.clear_server_messages()
+
+    def tearDown(self):
+        self.cm.stop_listening()
 
     def test_rec_msg(self):
         msg_to_snd = 'Simple Message Sent'
@@ -264,6 +265,18 @@ class TestClient(unittest.TestCase):
         self.assertEqual(msg['id'], self.cm.messages[0]['id'])
         msg = self.cm.messages[0]
         self.assertEqual(msg['acked'], 1)
+
+    @staticmethod
+    def callback(messages):
+        test_msg = "This is a test"
+        assert(test_msg == messages[0]['message'])
+        cm = py_po.client.ClientManager(app_key, secret, device_id)
+        cm.clear_server_messages()
+
+    def test_listen(self):
+        test_msg = "This is a test"
+        self.cm.listen_async(TestClient.callback)
+        self.pm.push_message(test_msg)
 
 
 class TestBasic(unittest.TestCase):

@@ -18,7 +18,7 @@ class BaseManager(object):
         self.latest_response_dict = None
 
 
-def send(url, data_out=None, get_method=False, return_limits=False):
+def send(url, data_out=None, get_method=False):
     """
     Sends a request to the selected url with the payload `data_out`.  Set `get_method` to True to send as a GET request.
     Default request is a POST.
@@ -35,11 +35,12 @@ def send(url, data_out=None, get_method=False, return_limits=False):
 
     res.raise_for_status()
 
-    app_limit = res.headers['X-Limit-App-Limit']
-    app_remaining = res.headers['X-Limit-App-Remaining']
-    app_reset = res.headers['X-Limit-App-Reset']
+    ret_dict = res.json()
+    if 'X-Limit-App-Limit' in res.headers:
+        ret_dict['app_limit'] = res.headers['X-Limit-App-Limit']
+    if 'X-Limit-App-Remaining' in res.headers:
+        ret_dict['app_remaining'] = res.headers['X-Limit-App-Remaining']
+    if 'X-Limit-App-Reset' in res.headers:
+        ret_dict['app_reset'] = res.headers['X-Limit-App-Reset']
 
-    if return_limits:
-        return res.json(), (app_limit, app_remaining, app_reset)
-
-    return res.json()
+    return ret_dict

@@ -227,11 +227,6 @@ class TestVerifcation(unittest.TestCase):
             py_po.verification.verify_user(app_key, user_key, device='junk')
 
 
-class TestSubscription(unittest.TestCase):
-    def setUp(self):
-        raise NotImplementedError
-
-
 class TestLicense(unittest.TestCase):
     def setUp(self):
         raise NotImplementedError

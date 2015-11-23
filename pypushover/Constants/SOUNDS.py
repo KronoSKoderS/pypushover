@@ -5,7 +5,7 @@ This is to be used with the 'sounds' argument of the PushOverManager.push_notifi
 
 see also: https://pushover.net/api#sounds
 """
-from py_pushover._base import  send
+from pypushover._base import  send
 
 _sounds_url = "https://api.pushover.net/1/sounds.json"
 

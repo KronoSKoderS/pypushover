@@ -3,7 +3,7 @@ import time
 import requests
 import datetime
 
-import py_pushover as py_po
+import pypushover as py_po
 
 try:
     from tests.helpers.keys import user_key, group_key, app_key, secret, device_id

@@ -19,7 +19,7 @@ Sending Basic Messages
 1. Create an object of the `MessageManager` class
 2. Call the `send_message` method:
 
-        >>> import py_pushover as py_po
+        >>> import pypushover as py_po
         >>> pm = py_po.message.MessageManager('<app_token>', '<group/user key>')
         >>> pm.push_message('Message Body')
 
@@ -80,7 +80,7 @@ select)
 """
 import time
 
-from py_pushover import PRIORITIES, BaseManager, base_url, send
+from pypushover import PRIORITIES, BaseManager, base_url, send
 
 
 _MAX_EXPIRE = 86400

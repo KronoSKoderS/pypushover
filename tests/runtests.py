@@ -22,6 +22,9 @@ except ImportError:  # support for Travis CI
 
 
 class TestMessage(unittest.TestCase):
+    """
+    Tests message related API's.  
+    """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)

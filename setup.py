@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-install_requires = ['requests']
+install_requires = ['requests', 'websocket-client']
 
-version = '0.0.1a1'
+version = '0.1'
 
 try:
     import pypandoc
@@ -16,6 +16,7 @@ setup(
     description='Object Oriented API calls to the Pushover Service',
     long_description=long_description,
     url='https://github.com/KronosKoderS/pypushover',
+    download_url='https://github.com/KronosKoderS/py_pushover/tarball/v' + version,
     author='KronoSKoderS',
     author_email='superuser.kronos@gmail.com',
     license='MIT',
@@ -32,8 +33,6 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-
-    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=install_requires,
     test_suite="tests.get_tests"
 )

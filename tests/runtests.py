@@ -271,15 +271,15 @@ class TestClient(unittest.TestCase):
 
     @staticmethod
     def callback(messages):
-        test_msg = "This is a test"
+        test_msg = "callback test message"
         assert(test_msg == messages[0]['message'])
         cm = py_po.client.ClientManager(app_key, secret, device_id)
         cm.clear_server_messages()
 
     def test_listen(self):
-        test_msg = "This is a test"
+        test_msg = "test_listen message"
         self.cm.listen_async(TestClient.callback)
-        self.pm.push_message(test_msg)
+        self.pm.push_message(test_msg, device='test_device')
 
 
 class TestBasic(unittest.TestCase):

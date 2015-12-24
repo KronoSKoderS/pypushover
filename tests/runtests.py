@@ -3,7 +3,7 @@ import time
 import requests
 import datetime
 
-import py_pushover as py_po
+import pypushover as py_po
 
 try:
     from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
@@ -22,6 +22,9 @@ except ImportError:  # support for Travis CI
 
 
 class TestMessage(unittest.TestCase):
+    """
+    Tests message related API's.  
+    """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)

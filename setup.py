@@ -11,12 +11,11 @@ except ImportError:
     long_description=''
 
 setup(
-    name='py_pushover',
-    packages=['py_pushover'],
+    name='pypushover',
     version=version,
     description='Object Oriented API calls to the Pushover Service',
     long_description=long_description,
-    url='https://github.com/KronosKoderS/py_pushover',
+    url='https://github.com/KronosKoderS/pypushover',
     download_url='https://github.com/KronosKoderS/py_pushover/tarball/v' + version,
     author='KronoSKoderS',
     author_email='superuser.kronos@gmail.com',

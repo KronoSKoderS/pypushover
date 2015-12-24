@@ -67,7 +67,7 @@ class TestMessage(unittest.TestCase):
         # Testing normal push message with Title
 
         val_pm = py_po.message.MessageManager(app_key)
-        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device_id='test_device')
+        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device='test_device')
 
 
         self.pm.push_message("Valid message with 'device' param", device='test_device')
@@ -143,12 +143,12 @@ class TestMessage(unittest.TestCase):
         py_po.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
-        self.pm.push_message("Valid Message: no receipt")
+        self.pm.push_message("Valid Message: no receipt", device="test_device")
         with self.assertRaises(TypeError):
             self.pm.check_receipt()
 
     def test_inv_cancel_retry(self):
-        self.pm.push_message("Valid Message: no reciept")
+        self.pm.push_message("Valid Message: no reciept", device="test_device")
         with self.assertRaises(TypeError):
             self.pm.cancel_retries()
 

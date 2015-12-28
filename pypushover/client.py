@@ -21,14 +21,14 @@ secret and device id MUST be stored in a safe location if stored at all.
 
 Here is an example:
 
-    >>> import py_pushover as py_po
+    >>> import pypushover as py_po
     >>> cm = py_po.client.ClientManager('<app token>')
     >>> secret = cm.login('user email', 'user pass')
     >>> device_id = cm.register_device('device_name')
 
 If you already have a secret and device id, then you can pass those into the ClientManager upon creation:
 
-    >>> import py_pushover as py_po
+    >>> import pypushover as py_po
     >>> cm = py_po.client.ClientManager('<app token>', secret='<user secret>', device_id='<device id>')
 
 Retrieving Messages:
@@ -85,7 +85,7 @@ import websocket
 import logging
 from multiprocessing import Process, Pipe
 
-from py_pushover import BaseManager, send, base_url
+from pypushover import BaseManager, send, base_url
 
 logging.basicConfig(filename='client.log', level=logging.INFO)
 

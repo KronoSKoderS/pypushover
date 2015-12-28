@@ -3,7 +3,7 @@ import time
 import requests
 import datetime
 
-import py_pushover as py_po
+import pypushover as py_po
 
 try:
     from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
@@ -22,6 +22,9 @@ except ImportError:  # support for Travis CI
 
 
 class TestMessage(unittest.TestCase):
+    """
+    Tests message related API's.  
+    """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
         self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
@@ -64,7 +67,7 @@ class TestMessage(unittest.TestCase):
         # Testing normal push message with Title
 
         val_pm = py_po.message.MessageManager(app_key)
-        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device_id='test_device')
+        val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device='test_device')
 
 
         self.pm.push_message("Valid message with 'device' param", device='test_device')
@@ -140,12 +143,12 @@ class TestMessage(unittest.TestCase):
         py_po.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
-        self.pm.push_message("Valid Message: no receipt")
+        self.pm.push_message("Valid Message: no receipt", device="test_device")
         with self.assertRaises(TypeError):
             self.pm.check_receipt()
 
     def test_inv_cancel_retry(self):
-        self.pm.push_message("Valid Message: no reciept")
+        self.pm.push_message("Valid Message: no reciept", device="test_device")
         with self.assertRaises(TypeError):
             self.pm.cancel_retries()
 
@@ -268,15 +271,15 @@ class TestClient(unittest.TestCase):
 
     @staticmethod
     def callback(messages):
-        test_msg = "This is a test"
+        test_msg = "callback test message"
         assert(test_msg == messages[0]['message'])
         cm = py_po.client.ClientManager(app_key, secret, device_id)
         cm.clear_server_messages()
 
     def test_listen(self):
-        test_msg = "This is a test"
+        test_msg = "test_listen message"
         self.cm.listen_async(TestClient.callback)
-        self.pm.push_message(test_msg)
+        self.pm.push_message(test_msg, device='test_device')
 
 
 class TestBasic(unittest.TestCase):

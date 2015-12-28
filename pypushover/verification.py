@@ -1,4 +1,4 @@
-from py_pushover import BaseManager, base_url, send
+from pypushover import BaseManager, base_url, send
 
 verify_url = base_url + "/users/validate.json"
 

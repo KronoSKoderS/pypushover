@@ -1,4 +1,4 @@
-from py_pushover import BaseManager, send, base_url
+from pypushover import BaseManager, send, base_url
 
 _assign_url = base_url + "licenses/assign.json"
 

@@ -28,5 +28,5 @@ Just run the following:
     
 Basic Usage:
 -----------
-    import py_pushover as pypo
+    import pypushover as pypo
     pypo.message.push_message('<app token>', '<user key>', 'Hello World!')

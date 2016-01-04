@@ -11,7 +11,7 @@ Group Information and Renaming:
 
 ## Using the `GroupManager` class:
 
-    >>> import py_pushover as py_po
+    >>> import pypushover as py_po
     >>> gm = py_po.groups.GroupManager('app_token', 'group_key')
     >>> print(gm.info())
 
@@ -94,7 +94,7 @@ Using the function call:
 
 """
 
-from py_pushover import BaseManager, base_url, send
+from pypushover import BaseManager, base_url, send
 
 
 _group_url = base_url + "groups/{group_key}"

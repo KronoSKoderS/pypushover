@@ -6,9 +6,7 @@ import datetime
 import pypushover as py_po
 
 try:
-    from tests.helpers.keys import user_key, group_key, app_key, secret, device_id, email, pw
-    keys = [user_key, group_key, app_key, secret, device_id]
-    if any([key == '' for key in keys]): raise ImportError  # Empty key try importing the environment var
+    from tests.helpers.keys import user_key, group_key, app_key, device_id, email, pw
 except ImportError:  # support for Travis CI
     try:
         import os
@@ -29,7 +27,8 @@ class TestMessage(unittest.TestCase):
     """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.client = py_po.client.ClientManager(app_key, device_id=device_id)
+        self.client.login(email, pw)
         self.cleanUpClient()
         # self.client.listen_async(self.client_message_receieved)
 
@@ -110,39 +109,39 @@ class TestMessage(unittest.TestCase):
         with self.assertRaises(ValueError):
             py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
-    def test_emergency_msg(self):
-        res = self.pm.push_message(
-            "Emergency: Valid",
-            priority=py_po.PRIORITIES.EMERGENCY,
-            retry=30,
-            expire=3600,
-            device='test_device'
-        )
-        self.assertEqual(self.pm.check_receipt()['status'], 1)
-        self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
-        self.pm.cancel_retries(res['receipt'])
-
-        self.pm.push_message(
-            "Valid Emergency: Last response Cancel",
-            priority=py_po.PRIORITIES.EMERGENCY,
-            retry=30,
-            expire=3600,
-            device='test_device'
-        )
-        self.pm.cancel_retries()
-
-        res = py_po.message.push_message(
-            app_key,
-            user_key,
-            'Emergency Valid',
-            priority=py_po.PRIORITIES.EMERGENCY,
-            retry=30,
-            expire=3600,
-            device='test_device'
-        )
-        time.sleep(0.5)
-        self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
-        py_po.message.cancel_retries(app_key, res['receipt'])
+    # def test_emergency_msg(self):
+    #     res = self.pm.push_message(
+    #         "Emergency: Valid",
+    #         priority=py_po.PRIORITIES.EMERGENCY,
+    #         retry=30,
+    #         expire=3600,
+    #         device='test_device'
+    #     )
+    #     self.assertEqual(self.pm.check_receipt()['status'], 1)
+    #     self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
+    #     self.pm.cancel_retries(res['receipt'])
+    #
+    #     self.pm.push_message(
+    #         "Valid Emergency: Last response Cancel",
+    #         priority=py_po.PRIORITIES.EMERGENCY,
+    #         retry=30,
+    #         expire=3600,
+    #         device='test_device'
+    #     )
+    #     self.pm.cancel_retries()
+    #
+    #     res = py_po.message.push_message(
+    #         app_key,
+    #         user_key,
+    #         'Emergency Valid',
+    #         priority=py_po.PRIORITIES.EMERGENCY,
+    #         retry=30,
+    #         expire=3600,
+    #         device='test_device'
+    #     )
+    #     time.sleep(0.5)
+    #     self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
+    #     py_po.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
         self.pm.push_message("Valid Message: no receipt", device="test_device")
@@ -165,25 +164,35 @@ class TestGroup(unittest.TestCase):
         info = py_po.groups.info(app_key, group_key)
         self.assertEqual(info['name'], 'KronoTestGroup')
 
+        self.valid_gm.add_user(user_key, device='test_device', memo='group info test')
+
         self.assertEquals(self.valid_gm.group.name, 'KronoTestGroup')
         self.assertEquals(self.valid_gm.group.users[0].device, 'test_device')
 
-    def test_group_add_del_user(self):
         self.valid_gm.remove_user(user_key)
-        info = self.valid_gm.info()
-        self.assertEqual(len(info['users']), 0)
+
+    def test_group_add_del_user(self):
+
         self.valid_gm.add_user(user_key, device='test_device', memo='Added using UnitTests')
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['device'], 'test_device')
         self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
 
+        self.valid_gm.remove_user(user_key)
+        info = self.valid_gm.info()
+        self.assertEqual(len(info['users']), 0)
+
     def test_group_disable_enable_user(self):
+        self.valid_gm.add_user(user_key, device='test_device', memo='dis/ena test')
+
         self.valid_gm.disable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], True)
         self.valid_gm.enable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], False)
+
+        self.valid_gm.remove_user(user_key)
 
     def test_group_rename(self):
         self.valid_gm.rename('KronoGroup')
@@ -240,7 +249,8 @@ class TestLicense(unittest.TestCase):
 class TestClient(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.cm = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.cm = py_po.client.ClientManager(app_key, device_id=device_id)
+        self.cm.login(email, pw)
         self.cm.retrieve_message()
         self.cm.clear_server_messages()
 

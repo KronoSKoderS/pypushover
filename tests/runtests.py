@@ -6,7 +6,7 @@ import datetime
 import pypushover as py_po
 
 try:
-    from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
+    from tests.helpers.keys import user_key, group_key, app_key, secret, device_id, email, pw
     keys = [user_key, group_key, app_key, secret, device_id]
     if any([key == '' for key in keys]): raise ImportError  # Empty key try importing the environment var
 except ImportError:  # support for Travis CI
@@ -17,6 +17,8 @@ except ImportError:  # support for Travis CI
         user_key = os.environ['user_key']
         secret = os.environ['secret']
         device_id = os.environ['device_id']
+        email = os.environ['email']
+        pw = os.environ['pw']
     except KeyError as e:
         raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
@@ -288,6 +290,30 @@ class TestBasic(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             inv_pm.push_message('This will never work')
             py_po.message.push_message(group_key, app_key, 'This will never work')
+
+
+class TestIssuesManual(unittest.TestCase):
+    """
+    These tests require manual setup or cleanup and therefore cannot be automated using Travis CI.  Run these manually
+    before submitting to the rel branch.
+    """
+    def test_37_dash_support(self):
+        """
+        WARNING!  You will need to DELETE any devices created using this test manually or this test will no longer
+        work.
+        :return:
+        """
+        cm = py_po.client.ClientManager(app_key)
+        cm.login(email, pw)
+        device_id = cm.register_device('Example-2')
+        self.assertNotEqual(device_id, "")  # redundant.  An error will be raised if something went wrong.
+        device_id = cm.register_device("name-with-multiple-dashes")
+        self.assertNotEqual(device_id, "")  # redundant.  An error will be raised if something went wrong.
+
+
+class TestIssues(unittest.TestCase):
+    pass
+
 
 if __name__ == "__main__":
     unittest.main()

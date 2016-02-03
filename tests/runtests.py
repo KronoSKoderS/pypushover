@@ -157,6 +157,10 @@ class TestGroup(unittest.TestCase):
     def setUp(self):
         self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
 
+        # clean up any previously failed test
+        if len(self.valid_gm.group.users) > 0:
+            self.valid_gm.remove_user(user_key)
+
     def test_group_info(self):
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')

@@ -13,7 +13,6 @@ except ImportError:  # support for Travis CI
         app_key = os.environ['app_key']
         group_key = os.environ['group_key']
         user_key = os.environ['user_key']
-        secret = os.environ['secret']
         device_id = os.environ['device_id']
         email = os.environ['email']
         pw = os.environ['pw']

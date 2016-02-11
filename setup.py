@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 install_requires = ['requests', 'websocket-client']
 
-version = '0.1'
+version = "0.2.7"
 
 try:
     import pypandoc
@@ -21,8 +21,6 @@ setup(
     author_email='superuser.kronos@gmail.com',
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Alpha',
-
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 2',
@@ -34,5 +32,6 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     install_requires=install_requires,
-    test_suite="tests.get_tests"
+    test_suite="tests.get_tests",
+    packages=find_packages(exclude=['tests'])
 )

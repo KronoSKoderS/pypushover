@@ -108,39 +108,39 @@ class TestMessage(unittest.TestCase):
         with self.assertRaises(ValueError):
             py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
-    # def test_emergency_msg(self):
-    #     res = self.pm.push_message(
-    #         "Emergency: Valid",
-    #         priority=py_po.PRIORITIES.EMERGENCY,
-    #         retry=30,
-    #         expire=3600,
-    #         device='test_device'
-    #     )
-    #     self.assertEqual(self.pm.check_receipt()['status'], 1)
-    #     self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
-    #     self.pm.cancel_retries(res['receipt'])
-    #
-    #     self.pm.push_message(
-    #         "Valid Emergency: Last response Cancel",
-    #         priority=py_po.PRIORITIES.EMERGENCY,
-    #         retry=30,
-    #         expire=3600,
-    #         device='test_device'
-    #     )
-    #     self.pm.cancel_retries()
-    #
-    #     res = py_po.message.push_message(
-    #         app_key,
-    #         user_key,
-    #         'Emergency Valid',
-    #         priority=py_po.PRIORITIES.EMERGENCY,
-    #         retry=30,
-    #         expire=3600,
-    #         device='test_device'
-    #     )
-    #     time.sleep(0.5)
-    #     self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
-    #     py_po.message.cancel_retries(app_key, res['receipt'])
+    def test_emergency_msg(self):
+        res = self.pm.push_message(
+            "Emergency: Valid",
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
+        self.assertEqual(self.pm.check_receipt()['status'], 1)
+        self.assertEqual(self.pm.check_receipt(res['receipt'])['status'], 1)
+        self.pm.cancel_retries(res['receipt'])
+
+        self.pm.push_message(
+            "Valid Emergency: Last response Cancel",
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
+        self.pm.cancel_retries()
+
+        res = py_po.message.push_message(
+            app_key,
+            user_key,
+            'Emergency Valid',
+            priority=py_po.PRIORITIES.EMERGENCY,
+            retry=30,
+            expire=3600,
+            device='test_device'
+        )
+        time.sleep(0.5)
+        self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
+        py_po.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
         self.pm.push_message("Valid Message: no receipt", device="test_device")
@@ -209,6 +209,7 @@ class TestGroup(unittest.TestCase):
 class TestVerifcation(unittest.TestCase):
     def setUp(self):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
+        self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
 
     def test_val_user(self):
         self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
@@ -317,11 +318,13 @@ class TestIssuesManual(unittest.TestCase):
         :return:
         """
         cm = py_po.client.ClientManager(app_key)
+        vm = py_po.verification.VerificationManager(app_key)
+
         cm.login(email, pw)
         device_id = cm.register_device('Example-2')
-        self.assertNotEqual(device_id, "")  # redundant.  An error will be raised if something went wrong.
+        vm.verify_user(user_key, 'Example-2')
         device_id = cm.register_device("name-with-multiple-dashes")
-        self.assertNotEqual(device_id, "")  # redundant.  An error will be raised if something went wrong.
+        vm.verify_user(user_key, 'name-with-multiple-dashes')
 
 
 class TestIssues(unittest.TestCase):

@@ -6,17 +6,16 @@ import datetime
 import pypushover as py_po
 
 try:
-    from tests.helpers.keys import user_key, group_key, app_key, secret, device_id
-    keys = [user_key, group_key, app_key, secret, device_id]
-    if any([key == '' for key in keys]): raise ImportError  # Empty key try importing the environment var
+    from tests.helpers.keys import user_key, group_key, app_key, device_id, email, pw
 except ImportError:  # support for Travis CI
     try:
         import os
         app_key = os.environ['app_key']
         group_key = os.environ['group_key']
         user_key = os.environ['user_key']
-        secret = os.environ['secret']
         device_id = os.environ['device_id']
+        email = os.environ['email']
+        pw = os.environ['pw']
     except KeyError as e:
         raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
@@ -27,7 +26,8 @@ class TestMessage(unittest.TestCase):
     """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.client = py_po.client.ClientManager(app_key, device_id=device_id)
+        self.client.login(email, pw)
         self.cleanUpClient()
         # self.client.listen_async(self.client_message_receieved)
 
@@ -157,31 +157,45 @@ class TestGroup(unittest.TestCase):
     def setUp(self):
         self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
 
+        # clean up any previously failed test
+        if len(self.valid_gm.group.users) > 0:
+            self.valid_gm.remove_user(user_key)
+
     def test_group_info(self):
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
         info = py_po.groups.info(app_key, group_key)
         self.assertEqual(info['name'], 'KronoTestGroup')
 
+        self.valid_gm.add_user(user_key, device='test_device', memo='group info test')
+
         self.assertEquals(self.valid_gm.group.name, 'KronoTestGroup')
         self.assertEquals(self.valid_gm.group.users[0].device, 'test_device')
 
-    def test_group_add_del_user(self):
         self.valid_gm.remove_user(user_key)
-        info = self.valid_gm.info()
-        self.assertEqual(len(info['users']), 0)
+
+    def test_group_add_del_user(self):
+
         self.valid_gm.add_user(user_key, device='test_device', memo='Added using UnitTests')
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['device'], 'test_device')
         self.assertEqual(info['users'][0]['memo'], 'Added using UnitTests')
 
+        self.valid_gm.remove_user(user_key)
+        info = self.valid_gm.info()
+        self.assertEqual(len(info['users']), 0)
+
     def test_group_disable_enable_user(self):
+        self.valid_gm.add_user(user_key, device='test_device', memo='dis/ena test')
+
         self.valid_gm.disable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], True)
         self.valid_gm.enable_user(user_key)
         info = self.valid_gm.info()
         self.assertEqual(info['users'][0]['disabled'], False)
+
+        self.valid_gm.remove_user(user_key)
 
     def test_group_rename(self):
         self.valid_gm.rename('KronoGroup')
@@ -195,6 +209,7 @@ class TestGroup(unittest.TestCase):
 class TestVerifcation(unittest.TestCase):
     def setUp(self):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
+        self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
 
     def test_val_user(self):
         self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
@@ -238,7 +253,8 @@ class TestLicense(unittest.TestCase):
 class TestClient(unittest.TestCase):
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.cm = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.cm = py_po.client.ClientManager(app_key, device_id=device_id)
+        self.cm.login(email, pw)
         self.cm.retrieve_message()
         self.cm.clear_server_messages()
 
@@ -288,6 +304,32 @@ class TestBasic(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             inv_pm.push_message('This will never work')
             py_po.message.push_message(group_key, app_key, 'This will never work')
+
+
+class TestIssuesManual(unittest.TestCase):
+    """
+    These tests require manual setup or cleanup and therefore cannot be automated using Travis CI.  Run these manually
+    before submitting to the rel branch.
+    """
+    def test_37_dash_support(self):
+        """
+        WARNING!  You will need to DELETE any devices created using this test manually or this test will no longer
+        work.
+        :return:
+        """
+        cm = py_po.client.ClientManager(app_key)
+        vm = py_po.verification.VerificationManager(app_key)
+
+        cm.login(email, pw)
+        device_id = cm.register_device('Example-2')
+        vm.verify_user(user_key, 'Example-2')
+        device_id = cm.register_device("name-with-multiple-dashes")
+        vm.verify_user(user_key, 'name-with-multiple-dashes')
+
+
+class TestIssues(unittest.TestCase):
+    pass
+
 
 if __name__ == "__main__":
     unittest.main()

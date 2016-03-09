@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/KronosKoderS/pypushover.svg?branch=master)](https://travis-ci.org/KronosKoderS/pypushover)
-[![Coverage Status](https://coveralls.io/repos/KronosKoderS/pypushover/badge.svg?branch=master&service=github)](https://coveralls.io/github/KronosKoderS/pypushover?branch=master)
+[![Latest Version](https://pypip.in/version/pypushover/badge.svg)](https://pypi.python.org/pypi/pypushover/)
 
 # pypushover
 Object Oriented Python bindings to the [Pushover API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  See the [Wiki](https://github.com/KronosKoderS/py_pushover/wiki) for more detailed information regarding usage.  

@@ -1,4 +1,4 @@
-[![Latest Version](https://pypip.in/version/pypushover/badge.svg)](https://pypi.python.org/pypi/pypushover/)
+[![PyPI version](https://badge.fury.io/py/pypushover.svg)](https://badge.fury.io/py/pypushover)
 
 # pypushover
 Object Oriented Python bindings to the [Pushover API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  See the [Wiki](https://github.com/KronosKoderS/py_pushover/wiki) for more detailed information regarding usage.  

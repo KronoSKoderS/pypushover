@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/KronosKoderS/pypushover.svg?branch=master)](https://travis-ci.org/KronosKoderS/pypushover)
-[![Coverage Status](https://coveralls.io/repos/KronosKoderS/pypushover/badge.svg?branch=master&service=github)](https://coveralls.io/github/KronosKoderS/pypushover?branch=master)
+[![PyPI version](https://badge.fury.io/py/pypushover.svg)](https://badge.fury.io/py/pypushover)
 
 # pypushover
 Object Oriented Python bindings to the [Pushover API](https://pushover.net/api).  Supports both python 2.7.x and 3.x.  See the [Wiki](https://github.com/KronosKoderS/py_pushover/wiki) for more detailed information regarding usage.  
@@ -28,5 +27,5 @@ Just run the following:
     
 Basic Usage:
 -----------
-    import py_pushover as pypo
+    import pypushover as pypo
     pypo.message.push_message('<app token>', '<user key>', 'Hello World!')

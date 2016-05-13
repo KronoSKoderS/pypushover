@@ -2,11 +2,12 @@ import unittest
 import time
 import requests
 import datetime
+import re
 
 import pypushover as py_po
 
 try:
-    from tests.helpers.keys import user_key, group_key, app_key, device_id, email, pw
+    from tests.helpers.keys import user_key, group_key, app_key, device_id, email, pw, secret
 except ImportError:  # support for Travis CI
     try:
         import os
@@ -16,6 +17,7 @@ except ImportError:  # support for Travis CI
         device_id = os.environ['device_id']
         email = os.environ['email']
         pw = os.environ['pw']
+        secret = os.environ['secret']
     except KeyError as e:
         raise ImportError(e)  # Environment var missing.  Raise an Import Error
 
@@ -325,6 +327,23 @@ class TestIssuesManual(unittest.TestCase):
         vm.verify_user(user_key, 'Example-2')
         device_id = cm.register_device("name-with-multiple-dashes")
         vm.verify_user(user_key, 'name-with-multiple-dashes')
+
+        self._del_devices()
+
+    def _del_devices(self):
+        s = requests.session()
+        r = s.post("https://pushover.net/login/login")
+        matchme = 'meta content="(.*)" name="csrf-token" /'
+        auth_token = re.search(matchme, str(r.text)).group(1)
+        payload = {
+            'user[email]': email,
+            'user[password]': pw,
+            'authenticity_token': auth_token
+        }
+        s.post("https://pushover.net/login/login", data=payload)
+        payload = {'authenticity_token': auth_token}
+        s.post("https://pushover.net/devices/destroy/Example-2", data=payload)
+        s.post("https://pushover.net/devices/destroy/name-with-multiple-dashes", data=payload)
 
 
 class TestIssues(unittest.TestCase):

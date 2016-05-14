@@ -28,8 +28,9 @@ class TestMessage(unittest.TestCase):
     """
     def setUp(self):
         self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.client = py_po.client.ClientManager(app_key, device_id=device_id)
-        self.client.login(email, pw)
+        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        #time.sleep(5)
+        #self.client.login(email, pw)
         self.cleanUpClient()
         # self.client.listen_async(self.client_message_receieved)
 
@@ -212,38 +213,46 @@ class TestVerifcation(unittest.TestCase):
     def setUp(self):
         self.valid_vm = py_po.verification.VerificationManager(app_key)
         self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
+        time.sleep(10)
 
     def test_val_user(self):
         self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
+        time.sleep(5)
         self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='test_device'))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
-        with self.assertRaises(requests.HTTPError):
+        with self.assertRaises(ConnectionError):
             self.valid_vm.verify_user(inv_user_key)
 
     def test_val_group(self):
         self.assertTrue(self.valid_vm.verify_group(group_key))
+        time.sleep(10)
         self.assertTrue(py_po.verification.verify_group(app_key, group_key))
-
+        time.sleep(10)
         self.assertTrue(self.valid_vm.verify_group(group_key))
+        time.sleep(10)
         self.assertTrue(py_po.verification.verify_group(app_key, group_key))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"
-        with self.assertRaises(requests.HTTPError):
+        with self.assertRaises(ConnectionError):
             self.valid_vm.verify_group(inv_group_key)
-        with self.assertRaises(requests.HTTPError):
+        time.sleep(10)
+        with self.assertRaises(ConnectionError):
             py_po.verification.verify_group(app_key, inv_group_key)
-
-        with self.assertRaises(requests.HTTPError):
+        time.sleep(10)
+        with self.assertRaises(ConnectionError):
             self.valid_vm.verify_user(inv_group_key)
-        with self.assertRaises(requests.HTTPError):
+        time.sleep(10)
+        with self.assertRaises(ConnectionError):
             py_po.verification.verify_user(app_key, inv_group_key)
 
-        with self.assertRaises(requests.HTTPError):
+        time.sleep(10)
+        with self.assertRaises(ConnectionError):
             self.valid_vm.verify_user(user_key, device='junk')
-        with self.assertRaises(requests.HTTPError):
+        time.sleep(10)
+        with self.assertRaises(ConnectionError):
             py_po.verification.verify_user(app_key, user_key, device='junk')
 
 
@@ -303,7 +312,7 @@ class TestClient(unittest.TestCase):
 class TestBasic(unittest.TestCase):
     def test_inv_app_token(self):
         inv_pm = py_po.message.MessageManager(group_key, user_key)
-        with self.assertRaises(requests.HTTPError):
+        with self.assertRaises(ConnectionError):
             inv_pm.push_message('This will never work')
             py_po.message.push_message(group_key, app_key, 'This will never work')
 

@@ -345,6 +345,8 @@ class TestIssues(unittest.TestCase):
     def test_39_clear_messages(self):
         cm = pypo.client.ClientManager(app_key, secret=secret, device_id=device_id)
         pm = pypo.message.MessageManager(app_key, user_key)
+
+        cm.clear_server_messages()
         pm.push_message('test1', device='test_device')
         pm.push_message('test2', device='test_device')
 

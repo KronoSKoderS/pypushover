@@ -1,5 +1,8 @@
 import requests
-import json
+try:
+    from json import JSONDecodeError as decode_error
+except AttributeError as e:
+    decode_error = ValueError
 
 base_url = "https://api.pushover.net/1/"
 
@@ -57,7 +60,7 @@ def send(url, data_out=None, get_method=False):
 
         return ret_dict
 
-    except json.JSONDecodeError as e:
+    except decode_error as e:
         res.raise_for_status()
 
 

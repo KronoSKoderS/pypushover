@@ -1,7 +1,7 @@
 import requests
 try:
     from json import JSONDecodeError as decode_error
-except AttributeError as e:
+except ImportError as e:
     decode_error = ValueError
 
 base_url = "https://api.pushover.net/1/"

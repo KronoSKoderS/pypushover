@@ -217,7 +217,7 @@ class TestVerifcation(unittest.TestCase):
 
     def test_val_user(self):
         self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
-        time.sleep(5)
+        time.sleep(10)
         self.assertTrue(pypo.verification.verify_user(app_key, user_key, device='test_device'))
 
     def test_inv_user(self):

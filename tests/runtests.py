@@ -331,6 +331,7 @@ class TestIssues(unittest.TestCase):
         work.
         :return:
         """
+        self._del_devices()
         cm = pypo.client.ClientManager(app_key)
         vm = pypo.verification.VerificationManager(app_key)
 
@@ -346,6 +347,7 @@ class TestIssues(unittest.TestCase):
         cm = pypo.client.ClientManager(app_key, secret=secret, device_id=device_id)
         pm = pypo.message.MessageManager(app_key, user_key)
 
+        cm.retrieve_messages()
         cm.clear_server_messages()
         pm.push_message('test1', device='test_device')
         pm.push_message('test2', device='test_device')

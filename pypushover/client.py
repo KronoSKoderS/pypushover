@@ -37,7 +37,7 @@ Messages are retrieved from the Pushover Server by using the `retrieve_message` 
 stored on the Pushover servers are then stored into the `messages` property.  These messages are a list of
 dictionaries with items as [defined in the Pushover API](https://pushover.net/api/client#download).
 
-    >>> cm.retrieve_message()
+    >>> cm.retrieve_messages()
     >>> for msg in cm.messages:
     ...     print(msg['message'])
 
@@ -55,7 +55,7 @@ If an emergency priority message is received, the Pushover Server should be ackn
 API guidelines](https://pushover.net/api/client#p2).  Once the user has acknowledged the message, using the
 `acknowledge_message` method passing in the emergency messages `receipt`.
 
-    >>> cm.retrieve_message()
+    >>> cm.retrieve_messages()
     >>> for msg in cm.messages:
     ...     print(msg['message'])
     ...     if msg['priority'] == py_po.PRIORITIES.EMERGENCY:
@@ -166,7 +166,7 @@ class ClientManager(BaseManager):
         self.__device_id__ = self.latest_response_dict['id']
         return self.__device_id__
 
-    def retrieve_message(self):
+    def retrieve_messages(self):
         """
         Retrieves messages stored on the Pushover servers and saves them into the `messages` property.
         """
@@ -189,6 +189,7 @@ class ClientManager(BaseManager):
             }
 
             self.latest_response_dict = send(self._del_message_url.format(device_id=self.__device_id__), params)
+            self.messages = []
 
     def acknowledge_message(self, receipt):
         """
@@ -261,7 +262,7 @@ class ClientManager(BaseManager):
             pass
 
         elif message == "!":
-            self.retrieve_message()
+            self.retrieve_messages()
             if self.__on_msg_receipt__:
                 self.__on_msg_receipt__(self.messages)
 

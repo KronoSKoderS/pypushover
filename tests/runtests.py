@@ -39,13 +39,13 @@ class TestMessage(unittest.TestCase):
         self.cleanUpClient()
 
     def cleanUpClient(self):
-        self.client.retrieve_message()
+        self.client.retrieve_messages()
         for msg in self.client.messages:
             if msg['priority'] >= pypo.PRIORITIES.EMERGENCY and msg['acked'] != 1:
                 self.client.acknowledge_message(msg['receipt'])
         self.client.clear_server_messages()
 
-        self.client.retrieve_message()
+        self.client.retrieve_messages()
         self.assertEquals(len(self.client.messages), 0)
 
     def client_message_receieved(self, messages):
@@ -56,12 +56,12 @@ class TestMessage(unittest.TestCase):
         # Testing a normal push message
         send_message = 'Testing normal push'
         self.pm.push_message(send_message, device='test_device')
-        self.client.retrieve_message()
+        self.client.retrieve_messages()
 
         self.assertEquals(send_message, self.client.messages[0]['message'])
 
         pypo.message.push_message(app_key, user_key, send_message, device='test_device')
-        self.client.retrieve_message()
+        self.client.retrieve_messages()
 
         self.assertEquals(send_message, self.client.messages[1]['message'])
 
@@ -265,7 +265,7 @@ class TestClient(unittest.TestCase):
         self.pm = pypo.message.MessageManager(app_key, user_key)
         self.cm = pypo.client.ClientManager(app_key, device_id=device_id)
         self.cm.login(email, pw)
-        self.cm.retrieve_message()
+        self.cm.retrieve_messages()
         self.cm.clear_server_messages()
 
     def tearDown(self):
@@ -274,7 +274,7 @@ class TestClient(unittest.TestCase):
     def test_rec_msg(self):
         msg_to_snd = 'Simple Message Sent'
         self.pm.push_message(msg_to_snd, device='test_device')
-        self.cm.retrieve_message()
+        self.cm.retrieve_messages()
         self.assertEqual(msg_to_snd, self.cm.messages[0]['message'])
 
     def test_ack_msg(self):
@@ -286,11 +286,11 @@ class TestClient(unittest.TestCase):
             retry=30,
             expire=30
         )
-        self.cm.retrieve_message()
+        self.cm.retrieve_messages()
         msg = self.cm.messages[0]
         self.assertEqual(msg['acked'], 0)
         self.cm.acknowledge_message(msg['receipt'])
-        self.cm.retrieve_message()
+        self.cm.retrieve_messages()
         self.assertEqual(msg['id'], self.cm.messages[0]['id'])
         msg = self.cm.messages[0]
         self.assertEqual(msg['acked'], 1)
@@ -321,6 +321,10 @@ class TestIssuesManual(unittest.TestCase):
     These tests require manual setup or cleanup and therefore cannot be automated using Travis CI.  Run these manually
     before submitting to the rel branch.
     """
+    pass
+
+
+class TestIssues(unittest.TestCase):
     def test_37_dash_support(self):
         """
         WARNING!  You will need to DELETE any devices created using this test manually or this test will no longer
@@ -338,6 +342,18 @@ class TestIssuesManual(unittest.TestCase):
 
         self._del_devices()
 
+    def test_39_clear_messages(self):
+        cm = pypo.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        pm = pypo.message.MessageManager(app_key, user_key)
+        pm.push_message('test1', device='test_device')
+        pm.push_message('test2', device='test_device')
+
+        cm.retrieve_messages()
+        self.assertEquals(len(cm.messages), 2)
+
+        cm.clear_server_messages()
+        self.assertEquals(len(cm.messages), 0)
+
     def _del_devices(self):
         s = requests.session()
         r = s.post("https://pushover.net/login/login")
@@ -352,10 +368,6 @@ class TestIssuesManual(unittest.TestCase):
         payload = {'authenticity_token': auth_token}
         s.post("https://pushover.net/devices/destroy/Example-2", data=payload)
         s.post("https://pushover.net/devices/destroy/name-with-multiple-dashes", data=payload)
-
-
-class TestIssues(unittest.TestCase):
-    pass
 
 
 if __name__ == "__main__":

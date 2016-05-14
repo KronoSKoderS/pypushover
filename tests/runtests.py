@@ -4,7 +4,7 @@ import requests
 import datetime
 import re
 
-import pypushover as py_po
+import pypushover as pypo
 
 try:
     from tests.helpers.keys import user_key, group_key, app_key, device_id, email, pw, secret
@@ -27,8 +27,8 @@ class TestMessage(unittest.TestCase):
     Tests message related API's.  
     """
     def setUp(self):
-        self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.client = py_po.client.ClientManager(app_key, secret=secret, device_id=device_id)
+        self.pm = pypo.message.MessageManager(app_key, user_key)
+        self.client = pypo.client.ClientManager(app_key, secret=secret, device_id=device_id)
         #time.sleep(5)
         #self.client.login(email, pw)
         self.cleanUpClient()
@@ -41,7 +41,7 @@ class TestMessage(unittest.TestCase):
     def cleanUpClient(self):
         self.client.retrieve_message()
         for msg in self.client.messages:
-            if msg['priority'] >= py_po.PRIORITIES.EMERGENCY and msg['acked'] != 1:
+            if msg['priority'] >= pypo.PRIORITIES.EMERGENCY and msg['acked'] != 1:
                 self.client.acknowledge_message(msg['receipt'])
         self.client.clear_server_messages()
 
@@ -60,7 +60,7 @@ class TestMessage(unittest.TestCase):
 
         self.assertEquals(send_message, self.client.messages[0]['message'])
 
-        py_po.message.push_message(app_key, user_key, send_message, device='test_device')
+        pypo.message.push_message(app_key, user_key, send_message, device='test_device')
         self.client.retrieve_message()
 
         self.assertEquals(send_message, self.client.messages[1]['message'])
@@ -69,7 +69,7 @@ class TestMessage(unittest.TestCase):
 
         # Testing normal push message with Title
 
-        val_pm = py_po.message.MessageManager(app_key)
+        val_pm = pypo.message.MessageManager(app_key)
         val_pm.push_message('Testing Title and manual user_key', title='Success!', user=user_key, device='test_device')
 
 
@@ -83,38 +83,38 @@ class TestMessage(unittest.TestCase):
 
         self.pm.push_message("Valid message with 'timestamp' param", timestamp=datetime.datetime.now(), device='test_device')
 
-        self.pm.push_message("Valid message with 'sound' param", sound=py_po.SOUNDS.SHORT_BIKE, device='test_device')
+        self.pm.push_message("Valid message with 'sound' param", sound=pypo.SOUNDS.SHORT_BIKE, device='test_device')
 
     def test_inv_msg(self):
-        inv_pm = py_po.message.MessageManager(app_key)
+        inv_pm = pypo.message.MessageManager(app_key)
         with self.assertRaises(ValueError):
             inv_pm.push_message('Missing User Key')
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):
-            self.pm.push_message('Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
+            self.pm.push_message('Emergency: missing retry and expire', priority=pypo.PRIORITIES.EMERGENCY)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency: missing retry and expire', priority=py_po.PRIORITIES.EMERGENCY)
+            pypo.message.push_message(app_key, user_key, 'Emergency: missing retry and expire', priority=pypo.PRIORITIES.EMERGENCY)
 
         with self.assertRaises(TypeError):
-            self.pm.push_message('Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            self.pm.push_message('Emergency: missing expire', priority=pypo.PRIORITIES.EMERGENCY, retry=30)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency: missing expire', priority=py_po.PRIORITIES.EMERGENCY, retry=30)
+            pypo.message.push_message(app_key, user_key, 'Emergency: missing expire', priority=pypo.PRIORITIES.EMERGENCY, retry=30)
 
         with self.assertRaises(TypeError):
-            self.pm.push_message('Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            self.pm.push_message('Emergency: missing retry', priority=pypo.PRIORITIES.EMERGENCY, expire=3600)
         with self.assertRaises(TypeError):
-            py_po.message.push_message(app_key, user_key, 'Emergency: missing retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600)
+            pypo.message.push_message(app_key, user_key, 'Emergency: missing retry', priority=pypo.PRIORITIES.EMERGENCY, expire=3600)
 
         with self.assertRaises(ValueError):
-            self.pm.push_message('Invalid expire', priority=py_po.PRIORITIES.EMERGENCY, expire=86500, retry=30)
+            self.pm.push_message('Invalid expire', priority=pypo.PRIORITIES.EMERGENCY, expire=86500, retry=30)
         with self.assertRaises(ValueError):
-            py_po.message.push_message(app_key, user_key, 'Invalid retry', priority=py_po.PRIORITIES.EMERGENCY, expire=3600, retry=20)
+            pypo.message.push_message(app_key, user_key, 'Invalid retry', priority=pypo.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
         res = self.pm.push_message(
             "Emergency: Valid",
-            priority=py_po.PRIORITIES.EMERGENCY,
+            priority=pypo.PRIORITIES.EMERGENCY,
             retry=30,
             expire=3600,
             device='test_device'
@@ -125,25 +125,25 @@ class TestMessage(unittest.TestCase):
 
         self.pm.push_message(
             "Valid Emergency: Last response Cancel",
-            priority=py_po.PRIORITIES.EMERGENCY,
+            priority=pypo.PRIORITIES.EMERGENCY,
             retry=30,
             expire=3600,
             device='test_device'
         )
         self.pm.cancel_retries()
 
-        res = py_po.message.push_message(
+        res = pypo.message.push_message(
             app_key,
             user_key,
             'Emergency Valid',
-            priority=py_po.PRIORITIES.EMERGENCY,
+            priority=pypo.PRIORITIES.EMERGENCY,
             retry=30,
             expire=3600,
             device='test_device'
         )
         time.sleep(0.5)
-        self.assertEqual(py_po.message.check_receipt(app_key, res['receipt'])['status'], 1)
-        py_po.message.cancel_retries(app_key, res['receipt'])
+        self.assertEqual(pypo.message.check_receipt(app_key, res['receipt'])['status'], 1)
+        pypo.message.cancel_retries(app_key, res['receipt'])
 
     def test_inv_check_msg(self):
         self.pm.push_message("Valid Message: no receipt", device="test_device")
@@ -158,7 +158,7 @@ class TestMessage(unittest.TestCase):
 
 class TestGroup(unittest.TestCase):
     def setUp(self):
-        self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
+        self.valid_gm = pypo.groups.GroupManager(app_key, group_key)
 
         # clean up any previously failed test
         if len(self.valid_gm.group.users) > 0:
@@ -167,7 +167,7 @@ class TestGroup(unittest.TestCase):
     def test_group_info(self):
         info = self.valid_gm.info()
         self.assertEqual(info['name'], 'KronoTestGroup')
-        info = py_po.groups.info(app_key, group_key)
+        info = pypo.groups.info(app_key, group_key)
         self.assertEqual(info['name'], 'KronoTestGroup')
 
         self.valid_gm.add_user(user_key, device='test_device', memo='group info test')
@@ -211,49 +211,48 @@ class TestGroup(unittest.TestCase):
 
 class TestVerifcation(unittest.TestCase):
     def setUp(self):
-        self.valid_vm = py_po.verification.VerificationManager(app_key)
-        self.valid_gm = py_po.groups.GroupManager(app_key, group_key)
+        self.valid_vm = pypo.verification.VerificationManager(app_key)
+        self.valid_gm = pypo.groups.GroupManager(app_key, group_key)
         time.sleep(10)
 
     def test_val_user(self):
         self.assertTrue(self.valid_vm.verify_user(user_key, device='test_device'))
         time.sleep(5)
-        self.assertTrue(py_po.verification.verify_user(app_key, user_key, device='test_device'))
+        self.assertTrue(pypo.verification.verify_user(app_key, user_key, device='test_device'))
 
     def test_inv_user(self):
         inv_user_key = "justabunchofjunk"
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(pypo.PushoverError):
             self.valid_vm.verify_user(inv_user_key)
 
     def test_val_group(self):
         self.assertTrue(self.valid_vm.verify_group(group_key))
         time.sleep(10)
-        self.assertTrue(py_po.verification.verify_group(app_key, group_key))
+        self.assertTrue(pypo.verification.verify_group(app_key, group_key))
         time.sleep(10)
         self.assertTrue(self.valid_vm.verify_group(group_key))
         time.sleep(10)
-        self.assertTrue(py_po.verification.verify_group(app_key, group_key))
+        self.assertTrue(pypo.verification.verify_group(app_key, group_key))
 
     def test_inv_group(self):
         inv_group_key = "justabunchofjunk"
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(pypo.PushoverError):
             self.valid_vm.verify_group(inv_group_key)
         time.sleep(10)
-        with self.assertRaises(ConnectionError):
-            py_po.verification.verify_group(app_key, inv_group_key)
+        with self.assertRaises(pypo.PushoverError):
+            pypo.verification.verify_group(app_key, inv_group_key)
         time.sleep(10)
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(pypo.PushoverError):
             self.valid_vm.verify_user(inv_group_key)
         time.sleep(10)
-        with self.assertRaises(ConnectionError):
-            py_po.verification.verify_user(app_key, inv_group_key)
-
+        with self.assertRaises(pypo.PushoverError):
+            pypo.verification.verify_user(app_key, inv_group_key)
         time.sleep(10)
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(pypo.PushoverError):
             self.valid_vm.verify_user(user_key, device='junk')
         time.sleep(10)
-        with self.assertRaises(ConnectionError):
-            py_po.verification.verify_user(app_key, user_key, device='junk')
+        with self.assertRaises(pypo.PushoverError):
+            pypo.verification.verify_user(app_key, user_key, device='junk')
 
 
 class TestLicense(unittest.TestCase):
@@ -263,8 +262,8 @@ class TestLicense(unittest.TestCase):
 
 class TestClient(unittest.TestCase):
     def setUp(self):
-        self.pm = py_po.message.MessageManager(app_key, user_key)
-        self.cm = py_po.client.ClientManager(app_key, device_id=device_id)
+        self.pm = pypo.message.MessageManager(app_key, user_key)
+        self.cm = pypo.client.ClientManager(app_key, device_id=device_id)
         self.cm.login(email, pw)
         self.cm.retrieve_message()
         self.cm.clear_server_messages()
@@ -283,7 +282,7 @@ class TestClient(unittest.TestCase):
         self.pm.push_message(
             msg_to_snd,
             device='test_device',
-            priority=py_po.PRIORITIES.EMERGENCY,
+            priority=pypo.PRIORITIES.EMERGENCY,
             retry=30,
             expire=30
         )
@@ -300,7 +299,7 @@ class TestClient(unittest.TestCase):
     def callback(messages):
         test_msg = "callback test message"
         assert(test_msg == messages[0]['message'])
-        cm = py_po.client.ClientManager(app_key, secret, device_id)
+        cm = pypo.client.ClientManager(app_key, secret, device_id)
         cm.clear_server_messages()
 
     def test_listen(self):
@@ -311,10 +310,10 @@ class TestClient(unittest.TestCase):
 
 class TestBasic(unittest.TestCase):
     def test_inv_app_token(self):
-        inv_pm = py_po.message.MessageManager(group_key, user_key)
-        with self.assertRaises(ConnectionError):
+        inv_pm = pypo.message.MessageManager(group_key, user_key)
+        with self.assertRaises(pypo.PushoverError):
             inv_pm.push_message('This will never work')
-            py_po.message.push_message(group_key, app_key, 'This will never work')
+            pypo.message.push_message(group_key, app_key, 'This will never work')
 
 
 class TestIssuesManual(unittest.TestCase):
@@ -328,8 +327,8 @@ class TestIssuesManual(unittest.TestCase):
         work.
         :return:
         """
-        cm = py_po.client.ClientManager(app_key)
-        vm = py_po.verification.VerificationManager(app_key)
+        cm = pypo.client.ClientManager(app_key)
+        vm = pypo.verification.VerificationManager(app_key)
 
         cm.login(email, pw)
         device_id = cm.register_device('Example-2')

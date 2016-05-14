@@ -19,6 +19,15 @@ class BaseManager(object):
         self.latest_response_dict = None
 
 
+class PushoverError(Exception):
+    def __init__(self, message, errors=None):
+        self.message = message
+        self.errors = errors
+
+    def __str__(self):
+        return repr(self.message)
+
+
 def send(url, data_out=None, get_method=False):
     """
     Sends a request to the selected url with the payload `data_out`.  Set `get_method` to True to send as a GET request.
@@ -37,7 +46,7 @@ def send(url, data_out=None, get_method=False):
     try:
         ret_dict = res.json()
         if ret_dict['status'] == 0:
-            raise ConnectionError(ret_dict['errors'])
+            raise PushoverError(ret_dict['errors'])
 
         if 'X-Limit-App-Limit' in res.headers:
             ret_dict['app_limit'] = res.headers['X-Limit-App-Limit']

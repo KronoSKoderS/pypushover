@@ -4,7 +4,7 @@ client - Client Manager for the Pushover API
 ============================================
 
 This module defines classes and functions necessary to act as a Client to the Pushover servers.  For more details about
-the Pushover API for clients visit [their site](https://pushover.net/api/client)
+the Pushover API for clients visit `their site <https://pushover.net/api/client>`_
 
 Creating a client:
 ------------------
@@ -16,7 +16,7 @@ For the first time, creating a client requires the following steps:
 3. Register your client service as a new device
 
 While doing these steps, you'll receive a 'secret' and 'device_id'.  These are return with the `ClientManager.login`
-and `ClientManager.register_device` methods.  They are also stored in the `secret` and `device_id` properties.  This
+and ``ClientManager.register_device`` methods.  They are also stored in the `secret` and `device_id` properties.  This
 secret and device id MUST be stored in a safe location if stored at all.
 
 Here is an example:

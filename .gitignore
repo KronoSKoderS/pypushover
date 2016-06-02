@@ -52,6 +52,7 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/html/
 
 # PyBuilder
 target/
@@ -60,3 +61,5 @@ tests/helpers/keys.py
 .pypirc
 sandbox.py
 *.backup
+*.bat
+docs/Makefile

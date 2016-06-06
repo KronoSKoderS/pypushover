@@ -1,3 +1,5 @@
 requests
 coveralls
 websocket-client
+pytest
+mock

@@ -88,19 +88,19 @@ select)
 """
 import time
 
-from pypushover import PRIORITIES, BaseManager, base_url, send
+from pypushover import PRIORITIES, BaseManager as _BaseManager, base_url as _base_url, send as _send
 
 
 _MAX_EXPIRE = 86400
 _MIN_RETRY = 30
 
-_push_url = base_url + "messages.json"
-_base_receipt_url = base_url + "receipts/{receipt}"
+_push_url = _base_url + "messages.json"
+_base_receipt_url = _base_url + "receipts/{receipt}"
 _receipt_url = _base_receipt_url + ".json"
 _cancel_receipt_url = _base_receipt_url + "/cancel.json"
 
 
-class MessageManager(BaseManager):
+class MessageManager(_BaseManager):
     """
     Manager class used to send messages and check receipts.  Stores the given app_token for future use.  Also stores the
     latest response from the API.
@@ -277,7 +277,7 @@ def push_message(token, user, message, **kwargs):
     if 'html' in kwargs:
         data_out['html'] = int(kwargs['html'])
 
-    return send(_push_url, data_out=data_out)
+    return _send(_push_url, data_out=data_out)
 
 
 def check_receipt(token, receipt):
@@ -289,7 +289,7 @@ def check_receipt(token, receipt):
     :return:
     """
     url_to_send = _receipt_url.format(receipt=receipt)
-    return send(url_to_send, data_out={'token': token}, get_method=True)
+    return _send(url_to_send, data_out={'token': token}, get_method=True)
 
 
 def cancel_retries(token, receipt):
@@ -301,5 +301,5 @@ def cancel_retries(token, receipt):
     :param str receipt: receipt of the message
     """
     url_to_send = _cancel_receipt_url.format(receipt=receipt)
-    return send(url_to_send, data_out={'token': token})
+    return _send(url_to_send, data_out={'token': token})
 

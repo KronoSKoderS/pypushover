@@ -10,9 +10,9 @@ def full_suite():
 
     return unittest.TestSuite([
         unittest.TestLoader().loadTestsFromTestCase(TestBasic),
-        unittest.TestLoader().loadTestsFromTestCase(TestClient),
-        unittest.TestLoader().loadTestsFromTestCase(TestGroup),
+        # unittest.TestLoader().loadTestsFromTestCase(TestClient),
+        # unittest.TestLoader().loadTestsFromTestCase(TestGroup),
         unittest.TestLoader().loadTestsFromTestCase(TestMessage),
-        unittest.TestLoader().loadTestsFromTestCase(TestVerifcation),
-        unittest.TestLoader().loadTestsFromTestCase(TestIssues)
+        # unittest.TestLoader().loadTestsFromTestCase(TestVerifcation),
+        # unittest.TestLoader().loadTestsFromTestCase(TestIssues)
     ])

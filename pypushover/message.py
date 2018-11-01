@@ -50,7 +50,7 @@ additional parameters are required:
 
 Below is an example:
 
-    >>> res = pm.send_message('Emergency Message!', priority=pypo.PRIORITIES.EMERGENCY, retry=30, expire=3600)
+    >>> res = pm.push_message('Emergency Message!', priority=pypo.PRIORITIES.EMERGENCY, retry=30, expire=3600)
     >>> res = pypo.message.push_message(
     ...     '<app_token>',
     ...     '<group/user key>',

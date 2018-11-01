@@ -53,7 +53,7 @@ def send(url, data_out=None, get_method=False):
 
         return ret_dict
 
-    except decode_error as e:
+    except decode_error:
         res.raise_for_status()
 
 

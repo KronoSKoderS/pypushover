@@ -24,6 +24,7 @@ class TestBasic(unittest.TestCase):
                 }
                 inv_pm.push_message('This will never work')
 
+        with self.assertRaises(pypo.PushoverError):
             with mock.patch('pypushover._base.requests.post') as mock_post:
                 mock_post.return_value = mock_response = mock.Mock()
                 mock_response.status_code = 400

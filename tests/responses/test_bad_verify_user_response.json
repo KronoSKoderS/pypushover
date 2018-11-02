@@ -1,0 +1,31 @@
+{
+    "status_code": 200,
+    "headers": {
+        "Server": "nginx", 
+        "Date": "Thu, 01 Nov 2018 16:43:21 GMT", 
+        "Content-Type": "application/json; charset=utf-8", 
+        "Transfer-Encoding": "chunked", 
+        "Connection": "keep-alive", 
+        "X-Frame-Options": "SAMEORIGIN, DENY", 
+        "X-XSS-Protection": "1; mode=block", 
+        "X-Content-Type-Options": "nosniff", 
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "POST, OPTIONS", 
+        "Access-Control-Allow-Headers": "X-Requested-With, X-Prototype-Version, Origin, Accept, Content-Type, X-CSRF-Token, X-Pushover-App, Authorization", 
+        "Access-Control-Max-Age": "1728000", 
+        "X-Limit-App-Limit": "7500", 
+        "X-Limit-App-Remaining": "7498", 
+        "X-Limit-App-Reset": "1543644000", 
+        "ETag": "W/\"2b287cc51514704e37448855a4c4e855\"", 
+        "Cache-Control": "max-age=0, private, must-revalidate", 
+        "X-Request-Id": "774ad663-d919-4539-b237-e0c589c2a837", 
+        "X-Runtime": "0.040146", 
+        "Strict-Transport-Security": "max-age=31536000"
+    },
+    "json": {
+        "user": "invalid",
+        "errors": ["user key is invalid"],
+        "status": 0,
+        "request": "774ad663-d919-4539-b237-e0c589c2a837"
+    }
+}

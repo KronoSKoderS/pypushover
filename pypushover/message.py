@@ -91,10 +91,6 @@ import os
 
 from pypushover import PRIORITIES, BaseManager as _BaseManager, base_url as _base_url, send as _send
 
-
-_MAX_EXPIRE = 86400
-_MIN_RETRY = 30
-
 _push_url = _base_url + "messages.json"
 _base_receipt_url = _base_url + "receipts/{receipt}"
 _receipt_url = _base_receipt_url + ".json"
@@ -134,6 +130,8 @@ class MessageManager(_BaseManager):
 
         # determine if client key has already been saved.  If not then get argument.  Group key takes priority
         client_key = self._group_key if self._group_key else self._user_key
+
+        # If user was passed, then that trumps what is saved in the class
         if 'user' in kwargs:
             client_key = kwargs['user']
             kwargs.pop('user')
@@ -216,76 +214,45 @@ def push_message(token, user, message, **kwargs):
     :param str sound: the name of the sound to override the user's default sound choice (Use the Sounds consts to
                       select)
     :param bool html: Enable rendering message on user device using HTML
-    :param str attachment: The file path to the image attachment
+    :param str attachment_path: The file path to the image attachment
     """
+    opt_args = [
+        'title', 'device', 'url', 'url_title', 'priority', 'retry',
+        'expire', 'timestamp', 'sound', 'html', 'attachment_path',
+        'callback'
+    ]
+
     data_out = {
         'token': token,
         'user': user,  # can be a user or group key
         'message': message
     }
 
-    # Support for non-required parameters of PushOver
-    if 'title' in kwargs:
-        data_out['title'] = kwargs['title']
-    if 'device' in kwargs:
-        temp = kwargs['device']
-        if type(temp) == list:
-            data_out['device'] = ','.join(temp)
-        else:
-            data_out['device'] = temp
-        data_out['device'] = kwargs['device']
-    if 'url' in kwargs:
-        data_out['url'] = kwargs['url']
-    if 'url_title' in kwargs:
-        data_out['url_title'] = kwargs['url_title']
-    if 'priority' in kwargs:
-        data_out['priority'] = kwargs['priority']
+    image_path = None
 
-        # Emergency prioritized messages require 'retry' and 'expire' to be defined
-        if data_out['priority'] == PRIORITIES.EMERGENCY:
-            if 'retry' not in kwargs:
-                raise TypeError('Missing `retry` argument required for message priority of Emergency')
-            else:
-                retry_val = kwargs['retry']
+    for k, v in kwargs.items():
+        if k not in opt_args:
+            raise ValueError("{} is not a valid arugment!".format(k))
 
-                # 'retry' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if not (_MIN_RETRY <= retry_val <= _MAX_EXPIRE):
-                    raise ValueError('`retry` argument must be at a minimum of {} and a maximum of {}'.format(
-                        _MIN_RETRY, _MAX_EXPIRE
-                    ))
+        if k == 'device' and type(v) == list:
+            v = ','.join(v)
 
-                data_out['retry'] = retry_val
-            if 'expire' not in kwargs:
-                raise TypeError('Missing `expire` arguemnt required for message priority of Emergency')
-            else:
-                expire_val = kwargs['expire']
+        if k == 'timestamp':
+            v = int(time.mktime(v.timetuple()))
 
-                # 'expire' val must be a minimum of _MIN_RETRY and max of _MAX_EXPIRE
-                if not(_MIN_RETRY <= expire_val <= _MAX_EXPIRE):
-                    raise ValueError('`expire` argument must be at a minimum of {} and a maximum of {}'.format(
-                        _MIN_RETRY, _MAX_EXPIRE
-                    ))
+        if k == 'attachment_path':
+            image_path = v
+            continue
 
-                data_out['expire'] = expire_val
+        data_out[k] = v
 
-            # Optionally a callback url may be supplied for the Emergency Message
-            if 'callback' in kwargs:
-                data_out['callback'] = kwargs['callback']
+    if image_path is not None:
+        with open(image_path, 'rb') as image:
 
-    if 'timestamp' in kwargs:
-        data_out['timestamp'] = int(time.mktime(kwargs['timestamp'].timetuple()))
-    if 'sound' in kwargs:
-        data_out['sound'] = kwargs['sound']
-    if 'html' in kwargs:
-        data_out['html'] = int(kwargs['html'])
-
-    if 'attachment' in kwargs:
-        with open(kwargs['attachment'], 'rb') as image:
-
-            image_payload = {
+            payload = {
                 'attachment': image
             }
-            return _send(_push_url, data_out=data_out, image_payload=image_payload)
+            return _send(_push_url, data_out=data_out, image_payload=payload)
 
     return _send(_push_url, data_out=data_out)
 

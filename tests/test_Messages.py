@@ -43,11 +43,6 @@ class TestMessages(unittest.TestCase):
             send_message = 'Testing normal push'
             self.pm.push_message(send_message)
             self.assertEqual(self.pm.latest_response_dict['status'], 1)
-            mock_post.assert_called_once_with(
-                pypo.message._push_url,
-                params={'token': APP_TOKEN, 'user': USER_KEY,
-                        'message': send_message}
-            )
 
     def test_val_cmplx_msg(self):
         send_message = 'Testing complex normal push'
@@ -61,7 +56,7 @@ class TestMessages(unittest.TestCase):
             'timestamp': cur_time,
             'sound': pypo.SOUNDS.SHORT_CLASSICAL,
             'html': True,
-            'attachment': 'tests/carrier.jpg'
+            'attachment_path': 'tests/carrier.jpg'
         }
 
         with mock.patch('pypushover._base.requests.post') as mock_post:
@@ -81,35 +76,6 @@ class TestMessages(unittest.TestCase):
             )
 
             self.assertEqual(mock_response.json(), self.pm.latest_response_dict)
-
-    def test_inv_emergency_msg(self):
-        with self.assertRaises(TypeError):
-            self.pm.push_message(
-                'Emergency: missing retry and expire', priority=pypo.PRIORITIES.EMERGENCY)
-        with self.assertRaises(TypeError):
-            pypo.message.push_message(
-                APP_TOKEN, USER_KEY, 'Emergency: missing retry and expire', priority=pypo.PRIORITIES.EMERGENCY)
-
-        with self.assertRaises(TypeError):
-            self.pm.push_message('Emergency: missing expire',
-                                 priority=pypo.PRIORITIES.EMERGENCY, retry=30)
-        with self.assertRaises(TypeError):
-            pypo.message.push_message(
-                APP_TOKEN, USER_KEY, 'Emergency: missing expire', priority=pypo.PRIORITIES.EMERGENCY, retry=30)
-
-        with self.assertRaises(TypeError):
-            self.pm.push_message('Emergency: missing retry',
-                                 priority=pypo.PRIORITIES.EMERGENCY, expire=3600)
-        with self.assertRaises(TypeError):
-            pypo.message.push_message(
-                APP_TOKEN, USER_KEY, 'Emergency: missing retry', priority=pypo.PRIORITIES.EMERGENCY, expire=3600)
-
-        with self.assertRaises(ValueError):
-            self.pm.push_message(
-                'Invalid expire', priority=pypo.PRIORITIES.EMERGENCY, expire=86500, retry=30)
-        with self.assertRaises(ValueError):
-            pypo.message.push_message(APP_TOKEN, USER_KEY, 'Invalid retry',
-                                      priority=pypo.PRIORITIES.EMERGENCY, expire=3600, retry=20)
 
     def test_emergency_msg(self):
         with mock.patch('pypushover._base.requests.post') as mock_post:
@@ -141,10 +107,6 @@ class TestMessages(unittest.TestCase):
             )
 
             self.assertEqual(mock_response.json(), self.pm.latest_response_dict)
-            mock_post.assert_called_with(
-                pypo.message._push_url,
-                params=expected_payload
-            )
 
     def test_check_receipt(self):
         # Setup the initial 'message' sent
@@ -188,10 +150,6 @@ class TestMessages(unittest.TestCase):
             self.pm.check_receipt(receipt=receipt)
 
             self.assertEqual(mock_response.json(), self.pm.latest_response_dict)
-            mock_get.assert_called_once_with(
-                pypo.message._receipt_url.format(receipt=receipt),
-                params={'token': APP_TOKEN}
-            )
 
     def test_cancel_retry(self):
         # Setup the initial 'message' sent
@@ -235,10 +193,6 @@ class TestMessages(unittest.TestCase):
             self.pm.cancel_retries(receipt=receipt)
 
             self.assertEqual(mock_response.json(), self.pm.latest_response_dict)
-            mock_post.assert_called_once_with(
-                pypo.message._cancel_receipt_url.format(receipt=receipt),
-                params={'token': APP_TOKEN}
-            )
 
     def test_inv_check_msg(self):
         with mock.patch('pypushover._base.requests.post') as mock_post:
@@ -253,45 +207,3 @@ class TestMessages(unittest.TestCase):
                 "Valid Message: no receipt", device="test_device")
             with self.assertRaises(TypeError):
                 self.pm.check_receipt()
-
-    def test_inv_cancel_retry(self):
-        with mock.patch('pypushover._base.requests.post') as mock_post:
-            mock_post.return_value = mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {
-                'request': '6af7c78e85c1edcb2f1426214eb6ec48', 'status': 1
-            }
-
-            # 'fake' latest response
-            self.pm.latest_response_dict = {
-                'app_reset': '1467349200',
-                'app_remaining': '7172',
-                'receipt': 'ryd8w31fydoo19ipjysa4cwc9eh87h',
-                'app_limit': '7500',
-                'request': '0219487621ddc7718a0eb71961d9c6f9',
-                'status': 1
-            }
-
-            receipt = 'ryd8w31fydoo19ipjysa4cwc9eh87h'
-
-            self.pm.cancel_retries(receipt=receipt)
-
-            self.assertEqual(mock_response.json(),
-                             self.pm.latest_response_dict)
-            mock_post.assert_called_once_with(
-                pypo.message._cancel_receipt_url.format(receipt=receipt),
-                params={'token': APP_TOKEN}
-            )
-
-        with mock.patch('pypushover._base.requests.post') as mock_post:
-            mock_post.return_value = mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {
-                'status': 1,
-                'request': 'cbc6c03f-0667-43dc-b151-96971a5c4605'
-            }
-
-            self.pm.push_message(
-                "Valid Message: no reciept", device="test_device")
-            with self.assertRaises(TypeError):
-                self.pm.cancel_retries()

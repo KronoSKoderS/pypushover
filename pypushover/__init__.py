@@ -1,4 +1,4 @@
-__version__ = "0.2.7"
+__version__ = "2018.11.0"
 
 from pypushover.Constants import PRIORITIES, SOUNDS, OS
 from pypushover._base import BaseManager, send, base_url, PushoverError

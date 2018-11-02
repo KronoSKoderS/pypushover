@@ -44,6 +44,29 @@ class TestMessages(unittest.TestCase):
             self.pm.push_message(send_message)
             self.assertEqual(self.pm.latest_response_dict['status'], 1)
 
+    def test_val_glance(self):
+        # Mock the response from the server
+        with mock.patch('pypushover._base.requests.post') as mock_post:
+            mock_post.return_value = mock_response = mock.Mock()
+
+            # load a real response from the pickle_jar and use it for the
+            # mocked response
+            with open('tests/responses/test_good_response.json', 'r') as reader:
+                res = json.load(reader)
+            mock_response.status_code = res['status_code']
+            mock_response.json.return_value = res['json']
+            mock_response.headers = res['headers']
+
+            params = {
+                'title':'hello',
+                'text':'this is a test',
+                'subtext':'test!',
+                'count':2,
+                'percent':86
+            }
+            self.pm.push_glance(**params)
+            self.assertEqual(self.pm.latest_response_dict['status'], 1)
+
     def test_val_cmplx_msg(self):
         send_message = 'Testing complex normal push'
 

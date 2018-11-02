@@ -95,6 +95,7 @@ _push_url = _base_url + "messages.json"
 _base_receipt_url = _base_url + "receipts/{receipt}"
 _receipt_url = _base_receipt_url + ".json"
 _cancel_receipt_url = _base_receipt_url + "/cancel.json"
+_glance_url = _base_url + "glances.json"
 
 
 class MessageManager(_BaseManager):
@@ -141,6 +142,22 @@ class MessageManager(_BaseManager):
             raise ValueError('`user` argument must be set to the group or user id')
 
         self.latest_response_dict = push_message(self._app_token, client_key, message, **kwargs)
+        return self.latest_response_dict
+
+    def push_glance(self, **kwargs):
+        # determine if client key has already been saved.  If not then get argument.  Group key takes priority
+        client_key = self._group_key if self._group_key else self._user_key
+
+        # If user was passed, then that trumps what is saved in the class
+        if 'user' in kwargs:
+            client_key = kwargs['user']
+            kwargs.pop('user')
+
+        # client key required to push message
+        if client_key is None:
+            raise ValueError('`user` argument must be set to the group or user id')
+
+        self.latest_response_dict = push_glance(self._app_token, client_key, **kwargs)
         return self.latest_response_dict
 
     def check_receipt(self, receipt=None):
@@ -280,3 +297,21 @@ def cancel_retries(token, receipt):
     url_to_send = _cancel_receipt_url.format(receipt=receipt)
     return _send(url_to_send, data_out={'token': token})
 
+
+def push_glance(app_token, user_key, **kwargs):
+    opt_args = [
+        'title', 'text', 'subtext', 'count', 'percent'
+    ]
+
+    data_out = {
+        'token': app_token,
+        'user': user_key,
+    }
+
+    for k, v in kwargs.items():
+        if k not in opt_args:
+            raise ValueError("{} is not a valid arugment!".format(k))
+
+        data_out[k] = v
+
+    return _send(_glance_url, data_out=data_out)

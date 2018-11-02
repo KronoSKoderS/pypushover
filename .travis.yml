@@ -3,10 +3,12 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.5" # 3.5 development branch
+  - "3.5"
+  - "3.5-dev" 
   - "3.6"
-  - "3.7"
-  - "nightly" # currently points to 3.6-dev
+  - "3.6-dev"
+  - "3.7-dev"
+  - "nightly"
 # command to install dependencies
 install:
   - pip install -r requirements.txt

@@ -43,10 +43,14 @@ def verify_user(app_token, user, device=None):
         'user': user,
     }
 
-    if device:
-        param_data['device'] = device
+    res = send(verify_url, param_data)
+    valid = res['status'] == 1
+    valid &= res['group'] == 0
 
-    return send(verify_url, param_data)['status'] == 1  # An HTTPError will be raised if invalid
+    if not device:
+        valid &= device in res['devices']
+
+    return valid
 
 
 def verify_group(app_token, group_id):
@@ -57,4 +61,13 @@ def verify_group(app_token, group_id):
     :param group_id:
     :return :
     """
-    return verify_user(app_token, group_id)
+    param_data = {
+        'token': app_token,
+        'user': group_id,
+    }
+
+    res = send(verify_url, param_data)
+    valid = res['status'] == 1
+    valid &= res['group'] == 1
+
+    return valid

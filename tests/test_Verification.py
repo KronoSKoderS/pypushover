@@ -22,7 +22,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_group_info_enabled_user_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_group_info_enabled_user_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -37,7 +37,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_verify_user_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_verify_user_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -50,7 +50,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_verify_user_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_verify_user_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -64,7 +64,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_bad_verify_user_response.json', 'rb') as reader:
+            with open('tests/responses/test_bad_verify_user_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -80,7 +80,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_verify_group_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_verify_group_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -95,7 +95,7 @@ class TestVerification(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_bad_verify_user_response.json', 'rb') as reader:
+            with open('tests/responses/test_bad_verify_user_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']

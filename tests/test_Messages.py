@@ -33,7 +33,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -76,7 +76,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -128,7 +128,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_emergency_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_emergency_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -164,7 +164,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the json and use it for the
             # mocked response
-            with open('tests/responses/test_good_emergency_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_emergency_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -190,7 +190,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the pickle_jar and use it for the
             # mocked response
-            with open('tests/responses/test_good_check_receipt_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_check_receipt_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -211,7 +211,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the json and use it for the
             # mocked response
-            with open('tests/responses/test_good_emergency_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_emergency_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']
@@ -237,7 +237,7 @@ class TestMessages(unittest.TestCase):
 
             # load a real response from the json and use it for the
             # mocked response
-            with open('tests/responses/test_good_check_receipt_response.json', 'rb') as reader:
+            with open('tests/responses/test_good_check_receipt_response.json', 'r') as reader:
                 res = json.load(reader)
             mock_response.status_code = res['status_code']
             mock_response.json.return_value = res['json']

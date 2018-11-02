@@ -13,7 +13,7 @@ from tests import APP_TOKEN, USER_KEY
 
 GROUP_KEY = USER_KEY
 
-class TestVerifcation(unittest.TestCase):
+class TestVerification(unittest.TestCase):
     def setUp(self):
         self.valid_vm = pypo.verification.VerificationManager(APP_TOKEN)
 

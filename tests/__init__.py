@@ -15,14 +15,14 @@ def full_suite():
     from .test_Groups import TestGroup
     from .test_Issues import TestIssues
     from .test_Messages import TestMessages
-    # from .test_Verification import TestVerification
+    from .test_Verification import TestVerification
 
     return unittest.TestSuite([
         unittest.TestLoader().loadTestsFromTestCase(TestBasic),
         # unittest.TestLoader().loadTestsFromTestCase(TestClient),
         unittest.TestLoader().loadTestsFromTestCase(TestGroup),
         unittest.TestLoader().loadTestsFromTestCase(TestMessages),
-        # unittest.TestLoader().loadTestsFromTestCase(TestVerifcation),
+        unittest.TestLoader().loadTestsFromTestCase(TestVerification),
         # unittest.TestLoader().loadTestsFromTestCase(TestIssues)
     ])
 

@@ -89,13 +89,13 @@ select)
 import time
 import os
 
-from pypushover import PRIORITIES, BaseManager as _BaseManager, base_url as _base_url, send as _send
+from pypushover import PRIORITIES, BaseManager as _BaseManager, BASE_URL as _BASE_URL, send as _send
 
-_push_url = _base_url + "messages.json"
-_base_receipt_url = _base_url + "receipts/{receipt}"
-_receipt_url = _base_receipt_url + ".json"
-_cancel_receipt_url = _base_receipt_url + "/cancel.json"
-_glance_url = _base_url + "glances.json"
+_PUSH_URL = _BASE_URL + "messages.json"
+_BASE_RECEIPT_URL = _BASE_URL + "receipts/{receipt}"
+_RECEIPT_URL = _BASE_RECEIPT_URL + ".json"
+_CANCEL_RECEIPT_URL = _BASE_RECEIPT_URL + "/cancel.json"
+_GLANCE_URL = _BASE_URL + "glances.json"
 
 
 class MessageManager(_BaseManager):
@@ -269,9 +269,9 @@ def push_message(token, user, message, **kwargs):
             payload = {
                 'attachment': image
             }
-            return _send(_push_url, data_out=data_out, image_payload=payload)
+            return _send(_PUSH_URL, data_out=data_out, image_payload=payload)
 
-    return _send(_push_url, data_out=data_out)
+    return _send(_PUSH_URL, data_out=data_out)
 
 
 def check_receipt(token, receipt):
@@ -282,7 +282,7 @@ def check_receipt(token, receipt):
     :param str receipt: the message receipt
     :return:
     """
-    url_to_send = _receipt_url.format(receipt=receipt)
+    url_to_send = _RECEIPT_URL.format(receipt=receipt)
     return _send(url_to_send, data_out={'token': token}, get_method=True)
 
 
@@ -294,7 +294,7 @@ def cancel_retries(token, receipt):
     :param str token: application token
     :param str receipt: receipt of the message
     """
-    url_to_send = _cancel_receipt_url.format(receipt=receipt)
+    url_to_send = _CANCEL_RECEIPT_URL.format(receipt=receipt)
     return _send(url_to_send, data_out={'token': token})
 
 
@@ -314,4 +314,4 @@ def push_glance(app_token, user_key, **kwargs):
 
         data_out[k] = v
 
-    return _send(_glance_url, data_out=data_out)
+    return _send(_GLANCE_URL, data_out=data_out)

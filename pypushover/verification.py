@@ -1,6 +1,6 @@
-from pypushover import BaseManager, base_url, send
+from pypushover import BaseManager, BASE_URL, send
 
-verify_url = base_url + "/users/validate.json"
+_VERIFY_URL = BASE_URL + "/users/validate.json"
 
 
 class VerificationManager(BaseManager):
@@ -43,7 +43,7 @@ def verify_user(app_token, user, device=None):
         'user': user,
     }
 
-    res = send(verify_url, param_data)
+    res = send(_VERIFY_URL, param_data)
     valid = res['status'] == 1
     valid &= res['group'] == 0
 
@@ -66,7 +66,7 @@ def verify_group(app_token, group_id):
         'user': group_id,
     }
 
-    res = send(verify_url, param_data)
+    res = send(_VERIFY_URL, param_data)
     valid = res['status'] == 1
     valid &= res['group'] == 1
 

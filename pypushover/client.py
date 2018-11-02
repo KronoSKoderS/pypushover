@@ -85,7 +85,7 @@ import websocket
 import logging
 from multiprocessing import Process, Pipe
 
-from pypushover import BaseManager, send, base_url
+from pypushover import BaseManager, send, BASE_URL
 
 class ClientManager(BaseManager):
     """
@@ -94,11 +94,11 @@ class ClientManager(BaseManager):
     If no device id is provided, the user MUST register this client as a device before interfacing with the Pushover
     servers.
     """
-    _login_url = base_url + "users/login.json"
-    _register_device_url = base_url + "devices.json"
-    _message_url = base_url + "messages.json"
-    _del_message_url = base_url + "devices/{device_id}/update_highest_message.json"
-    _ack_message_url = base_url + "receipts/{receipt_id}/acknowledge.json"
+    _login_url = BASE_URL + "users/login.json"
+    _register_device_url = BASE_URL + "devices.json"
+    _message_url = BASE_URL + "messages.json"
+    _del_message_url = BASE_URL + "devices/{device_id}/update_highest_message.json"
+    _ack_message_url = BASE_URL + "receipts/{receipt_id}/acknowledge.json"
     _ws_connect_url = "wss://client.pushover.net/push"
     _ws_login = "login:{device_id}:{secret}\n"
 

@@ -11,7 +11,6 @@ class TestIssues(unittest.TestCase):
         work.
         :return:
         """
-        self._del_devices()
         cm = pypo.client.ClientManager(app_key)
         vm = pypo.verification.VerificationManager(app_key)
 
@@ -21,7 +20,6 @@ class TestIssues(unittest.TestCase):
         device_id = cm.register_device("name-with-multiple-dashes")
         vm.verify_user(user_key, 'name-with-multiple-dashes')
 
-        self._del_devices()
 
     def test_39_clear_messages(self):
         cm = pypo.client.ClientManager(app_key, secret=secret, device_id=device_id)
@@ -37,18 +35,3 @@ class TestIssues(unittest.TestCase):
 
         cm.clear_server_messages()
         self.assertEquals(len(cm.messages), 0)
-
-    def _del_devices(self):
-        s = requests.session()
-        r = s.post("https://pushover.net/login/login")
-        matchme = 'meta content="(.*)" name="csrf-token" /'
-        auth_token = re.search(matchme, str(r.text)).group(1)
-        payload = {
-            'user[email]': email,
-            'user[password]': pw,
-            'authenticity_token': auth_token
-        }
-        s.post("https://pushover.net/login/login", data=payload)
-        payload = {'authenticity_token': auth_token}
-        s.post("https://pushover.net/devices/destroy/Example-2", data=payload)
-        s.post("https://pushover.net/devices/destroy/name-with-multiple-dashes", data=payload)

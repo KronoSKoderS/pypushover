@@ -94,16 +94,16 @@ Using the function call:
 
 """
 
-from pypushover import BaseManager, base_url, send
+from pypushover import BaseManager, BASE_URL, send
 
 
-_group_url = base_url + "groups/{group_key}"
-_group_info_url = _group_url + ".json"
-_group_add_user_url = _group_url + "/add_user.json"
-_group_del_user_url = _group_url + "/delete_user.json"
-_group_dis_user_url = _group_url + "/disable_user.json"
-_group_ena_user_url = _group_url + "/enable_user.json"
-_group_ren_url = _group_url + "/rename.json"
+_GROUP_URL = BASE_URL + "groups/{group_key}"
+_GROUP_INFO_URL = _GROUP_URL + ".json"
+_GROUP_ADD_USER_URL = _GROUP_URL + "/add_user.json"
+_GROUP_DEL_USER_URL = _GROUP_URL + "/delete_user.json"
+_GROUP_DIS_USER_URL = _GROUP_URL + "/disable_user.json"
+_GROUP_ENA_USER_URL = _GROUP_URL + "/enable_user.json"
+_GROUP_REN_USER_URL = _GROUP_URL + "/rename.json"
 
 
 class _User(object):
@@ -241,7 +241,7 @@ def info(app_token, group):
         'token': app_token,
     }
 
-    return send(_group_info_url.format(group_key=group), param_data, get_method=True)
+    return send(_GROUP_INFO_URL.format(group_key=group), param_data, get_method=True)
 
 
 def add_user(app_token, group, user, device=None, memo=None):
@@ -266,7 +266,7 @@ def add_user(app_token, group, user, device=None, memo=None):
     if memo:
         param_data['memo'] = memo
 
-    return send(_group_add_user_url.format(group_key=group), param_data)
+    return send(_GROUP_ADD_USER_URL.format(group_key=group), param_data)
 
 
 def remove_user(app_token, group, user):
@@ -283,7 +283,7 @@ def remove_user(app_token, group, user):
         'user': user
     }
 
-    return send(_group_del_user_url.format(group_key=group), param_data)
+    return send(_GROUP_DEL_USER_URL.format(group_key=group), param_data)
 
 
 def disable_user(app_token, group, user):
@@ -300,7 +300,7 @@ def disable_user(app_token, group, user):
         'user': user
     }
 
-    return send(_group_dis_user_url.format(group_key=group), param_data)
+    return send(_GROUP_DIS_USER_URL.format(group_key=group), param_data)
 
 
 def enable_user(app_token, group, user):
@@ -316,7 +316,7 @@ def enable_user(app_token, group, user):
         'user': user
     }
 
-    return send(_group_ena_user_url.format(group_key=group), param_data)
+    return send(_GROUP_ENA_USER_URL.format(group_key=group), param_data)
 
 
 def rename(app_token, group, name):
@@ -333,4 +333,4 @@ def rename(app_token, group, name):
         'name': name
     }
 
-    return send(_group_ren_url.format(group_key=group), param_data)
+    return send(_GROUP_REN_USER_URL.format(group_key=group), param_data)

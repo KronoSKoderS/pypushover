@@ -1,6 +1,6 @@
-from pypushover import BaseManager, send, base_url
+from pypushover import BaseManager, send, BASE_URL
 
-_assign_url = base_url + "licenses/assign.json"
+_ASSIGN_URL = BASE_URL + "licenses/assign.json"
 
 
 class LicenseManager(BaseManager):
@@ -48,4 +48,4 @@ def assign_license(token, user=None, email=None, os=None):
     if os:
         params['os'] = os
 
-    send(_assign_url, data_out=params)
+    send(_ASSIGN_URL, data_out=params)

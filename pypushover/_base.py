@@ -4,7 +4,7 @@ try:
 except ImportError as e:
     decode_error = ValueError
 
-base_url = "https://api.pushover.net/1/"
+BASE_URL = "https://api.pushover.net/1/"
 
 
 class BaseManager(object):

@@ -60,16 +60,9 @@ class TestMessages(unittest.TestCase):
             'url_title': 'Pushover',
             'timestamp': cur_time,
             'sound': pypo.SOUNDS.SHORT_CLASSICAL,
-            'html': True
+            'html': True,
+            'attachment': 'tests/carrier.jpg'
         }
-
-        expected_payload = payload.copy()
-        expected_payload.update({
-            'token': APP_TOKEN,
-            'user': USER_KEY,
-            'message': send_message,
-            'timestamp': int(time.mktime(cur_time.timetuple()))
-        })
 
         with mock.patch('pypushover._base.requests.post') as mock_post:
             mock_post.return_value = mock_response = mock.Mock()
@@ -88,10 +81,6 @@ class TestMessages(unittest.TestCase):
             )
 
             self.assertEqual(mock_response.json(), self.pm.latest_response_dict)
-            mock_post.assert_called_once_with(
-                pypo.message._push_url,
-                params=expected_payload
-            )
 
     def test_inv_emergency_msg(self):
         with self.assertRaises(TypeError):

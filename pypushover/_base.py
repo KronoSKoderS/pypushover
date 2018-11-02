@@ -31,7 +31,7 @@ class PushoverError(Exception):
         return repr(self.message)
 
 
-def send(url, data_out=None, get_method=False):
+def send(url, data_out=None, get_method=False, image_payload=None):
     """
     Sends a request to the selected url with the payload `data_out`.  Set `get_method` to True to send as a GET request.
     Default request is a POST.
@@ -39,12 +39,16 @@ def send(url, data_out=None, get_method=False):
     :param str url: url to send the request to
     :param dict data_out: payload data to send
     :param bool get_method: True = GET request; False = POST request (default)
+    :param dict image_payload: the image payload to send to the device(s)
     :return dict: a dictionary with the json results of the request.
     """
     if get_method:
         res = requests.get(url, params=data_out)
     else:
-        res = requests.post(url, params=data_out)
+        if not image_payload:
+            res = requests.post(url, params=data_out, files=image_payload)
+        else:
+            res = requests.post(url, params=data_out)
 
     try:
         ret_dict = res.json()

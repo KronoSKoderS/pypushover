@@ -87,6 +87,7 @@ Other Supported Parameters
 select)
 """
 import time
+import os
 
 from pypushover import PRIORITIES, BaseManager as _BaseManager, base_url as _base_url, send as _send
 
@@ -215,6 +216,7 @@ def push_message(token, user, message, **kwargs):
     :param str sound: the name of the sound to override the user's default sound choice (Use the Sounds consts to
                       select)
     :param bool html: Enable rendering message on user device using HTML
+    :param str attachment: The file path to the image attachment
     """
     data_out = {
         'token': token,
@@ -276,6 +278,14 @@ def push_message(token, user, message, **kwargs):
         data_out['sound'] = kwargs['sound']
     if 'html' in kwargs:
         data_out['html'] = int(kwargs['html'])
+
+    if 'attachment' in kwargs:
+        with open(kwargs['attachment'], 'rb') as image:
+
+            image_payload = {
+                'attachment': image
+            }
+            return _send(_push_url, data_out=data_out, image_payload=image_payload)
 
     return _send(_push_url, data_out=data_out)
 

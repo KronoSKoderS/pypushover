@@ -112,6 +112,7 @@ class _User(object):
 
     This class is generated dynamically based on the response from the Pushover servers.
     """
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k + '_key' if k == 'user' else k, v)
@@ -123,6 +124,7 @@ class _Group(object):
 
     This class is generated dynamically based on the response from the Pushover servers.
     """
+
     def __init__(self, **kwargs):
         self.users = None
         for k, v in kwargs.items():
@@ -173,7 +175,8 @@ class GroupManager(BaseManager):
         :return: A dictionary representing the json response.
         """
 
-        self.latest_response_dict = add_user(self._app_token, self._group_key, user, device=device, memo=memo)
+        self.latest_response_dict = add_user(
+            self._app_token, self._group_key, user, device=device, memo=memo)
         self.__update_group()
         return self.latest_response_dict
 
@@ -184,7 +187,8 @@ class GroupManager(BaseManager):
         :return: A dictionary representing the json response.
         """
 
-        self.latest_response_dict = remove_user(self._app_token, self._group_key, user)
+        self.latest_response_dict = remove_user(
+            self._app_token, self._group_key, user)
         self.__update_group()
         return self.latest_response_dict
 
@@ -195,7 +199,8 @@ class GroupManager(BaseManager):
         :return: A dictionary representing the json response.
         """
 
-        self.latest_response_dict = disable_user(self._app_token, self._group_key, user)
+        self.latest_response_dict = disable_user(
+            self._app_token, self._group_key, user)
         self.__update_group()
         return self.latest_response_dict
 
@@ -206,7 +211,8 @@ class GroupManager(BaseManager):
         :return: A dictionary representing the json response.
         """
 
-        self.latest_response_dict = enable_user(self._app_token, self._group_key, user)
+        self.latest_response_dict = enable_user(
+            self._app_token, self._group_key, user)
         self.__update_group()
         return self.latest_response_dict
 
@@ -217,7 +223,8 @@ class GroupManager(BaseManager):
         :return: A dictionary representing the json response.
         """
 
-        self.latest_response_dict = rename(self._app_token, self._group_key, name)
+        self.latest_response_dict = rename(
+            self._app_token, self._group_key, name)
         self.__update_group()
         return self.latest_response_dict
 

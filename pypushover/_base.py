@@ -45,19 +45,14 @@ def send(url, data_out=None, get_method=False, image_payload=None):
     if get_method:
         res = requests.get(url, params=data_out)
     else:
-        if not image_payload:
-            res = requests.post(url, params=data_out, files=image_payload)
-        else:
-            res = requests.post(url, params=data_out)
+        res = requests.post(url, params=data_out, files=image_payload)
 
-    try:
-        ret_dict = res.json()
-        if ret_dict['status'] == 0:
-            raise PushoverError(ret_dict['errors'])
-
-        return ret_dict
-
-    except decode_error:
+    if res.status_code != 200:
         res.raise_for_status()
 
+    ret_dict = res.json()
+    if ret_dict['status'] == 0:
+        raise PushoverError(ret_dict['errors'])
+
+    return ret_dict
 

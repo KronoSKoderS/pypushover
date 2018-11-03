@@ -87,6 +87,10 @@ from multiprocessing import Process, Pipe
 
 from pypushover import BaseManager, send, base_url
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+print(__name__)
+
 class ClientManager(BaseManager):
     """
     Manages the interface between the Pushover Servers and user.  This can be instantiated with or without the user
@@ -110,7 +114,6 @@ class ClientManager(BaseManager):
         :return:
         """
         super(ClientManager, self).__init__(app_token)
-        logging.basicConfig(filename='client.log', level=logging.INFO)
         self.__secret__ = secret
         self.__device_id__ = device_id
         self.messages = []

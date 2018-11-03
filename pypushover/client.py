@@ -89,7 +89,6 @@ from pypushover import BaseManager, send, base_url
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-print(__name__)
 
 class ClientManager(BaseManager):
     """

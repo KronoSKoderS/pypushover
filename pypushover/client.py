@@ -81,6 +81,9 @@ Using the `listen_async` method is a non-blocking method that will continually r
     >>> time.sleep(30)
     >>> cm.stop_listening
 """
+
+__all__ = ('ClientManager', )
+
 import websocket
 import logging
 from multiprocessing import Process, Pipe

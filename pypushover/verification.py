@@ -1,3 +1,5 @@
+__all__ = ('VerificationManager', 'verify_user', 'verify_group')
+
 from pypushover import BaseManager, base_url, send
 
 verify_url = base_url + "/users/validate.json"

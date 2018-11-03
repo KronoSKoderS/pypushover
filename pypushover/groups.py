@@ -94,6 +94,17 @@ Using the function call:
 
 """
 
+__all__ = (
+    'GroupManager',
+
+    'info',
+    'add_user',
+    'remove_user',
+    'disable_user',
+    'enable_user',
+    'rename'
+)
+
 from pypushover import BaseManager, base_url, send
 
 

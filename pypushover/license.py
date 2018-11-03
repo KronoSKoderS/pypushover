@@ -1,3 +1,5 @@
+__all__ = ('LicenseManager', 'assign_license')
+
 from pypushover import BaseManager, send, base_url
 
 _assign_url = base_url + "licenses/assign.json"

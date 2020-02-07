@@ -81,11 +81,17 @@ Using the `listen_async` method is a non-blocking method that will continually r
     >>> time.sleep(30)
     >>> cm.stop_listening
 """
+
+__all__ = ('ClientManager', )
+
 import websocket
 import logging
 from multiprocessing import Process, Pipe
 
 from pypushover import BaseManager, send, base_url
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 
 class ClientManager(BaseManager):
     """
@@ -110,7 +116,6 @@ class ClientManager(BaseManager):
         :return:
         """
         super(ClientManager, self).__init__(app_token)
-        logging.basicConfig(filename='client.log', level=logging.INFO)
         self.__secret__ = secret
         self.__device_id__ = device_id
         self.messages = []
